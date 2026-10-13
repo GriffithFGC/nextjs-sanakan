@@ -1,0 +1,664 @@
+<title>Vert-de-gris</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Instrument+Sans:wght@400;500;600&family=Spectral:ital,wght@1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one dark world. A full-bleed mock of the site (nav, hero, sections) then design notes. Hero canvas = the thesis: a bottomless Nihei shaft, grey and silent, that a Yakushima forest is slowly reclaiming. */
+:root {
+  color-scheme: dark;
+  --bg: #0d100f;        /* béton nuit */
+  --slab: #171c1a;      /* dalle */
+  --line: #253029;      /* joint */
+  --dim: #6d7871;       /* poussière */
+  --soft: #a8b2a9;      /* lichen */
+  --ink: #e4dfd1;       /* vélin */
+  --verdigris: #8dbba3; /* accent technique */
+  --brass: #c9a253;     /* accent humain */
+  --moss: #6f9147;      /* mousse de Yakushima, dans l'image seulement */
+  --glow: #bfe8de;      /* lueur, dans l'image seulement */
+  --display: "Marcellus", "Trajan Pro", Georgia, serif;
+  --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --voice: "Spectral", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--body); font-size: 15px; line-height: 1.65; padding-inline: clamp(16px, 4vw, 48px); padding-block: 40px 80px; }
+.wrap { max-width: 1140px; margin: 0 auto; display: grid; gap: 48px; }
+
+.label { font-family: var(--mono); font-size: 11.5px; letter-spacing: .15em; text-transform: uppercase; color: var(--dim); }
+.intro { display: grid; gap: 12px; max-width: 68ch; }
+.intro h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.1; letter-spacing: .01em; text-wrap: balance; }
+.intro p { margin: 0; color: var(--soft); }
+
+/* ---------- site mock ---------- */
+.site { border: 1px solid var(--line); background: var(--bg); }
+.nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 16px clamp(18px, 3vw, 32px); border-bottom: 1px solid var(--line); }
+.mark { font-family: var(--display); font-size: 18px; letter-spacing: .06em; }
+.mark span { color: var(--verdigris); }
+.links { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px; color: var(--soft); }
+.lang { font-family: var(--mono); font-size: 12px; color: var(--dim); letter-spacing: .08em; }
+.lang b { color: var(--ink); font-weight: 500; }
+
+.hero { position: relative; min-height: 740px; display: grid; align-content: end; padding: clamp(24px, 4vw, 52px); overflow: hidden; background: var(--bg); }
+.hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero-text { position: relative; display: grid; gap: 12px; max-width: 600px; }
+.strata { font-family: var(--mono); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--verdigris); }
+.hero h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(50px, 8.6vw, 104px); line-height: .92; letter-spacing: .015em; text-wrap: balance; text-shadow: 0 2px 28px rgba(13,16,15,.85); }
+.role { margin: 0; color: var(--soft); font-size: 16px; }
+.quote { margin: 4px 0 0; font-family: var(--voice); font-style: italic; font-weight: 300; font-size: 19px; line-height: 1.5; max-width: 44ch; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+.btn { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 16px; border: 1px solid var(--verdigris); color: var(--verdigris); background: rgba(13,16,15,.6); }
+.btn.solid { background: var(--verdigris); color: var(--bg); }
+
+.grow { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px clamp(18px, 3vw, 32px); border-top: 1px solid var(--line); background: var(--slab); }
+.grow label { font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--soft); }
+.grow input { flex: 1 1 200px; accent-color: var(--verdigris); }
+.grow output { font-family: var(--mono); font-size: 12px; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 15ch; }
+.grow button { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; padding: 7px 12px; border: 1px solid var(--line); background: transparent; color: var(--soft); cursor: pointer; }
+.grow button:hover { border-color: var(--verdigris); color: var(--verdigris); }
+
+.sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); border-top: 1px solid var(--line); }
+.sec { padding: clamp(22px, 3.5vw, 40px); display: grid; gap: 14px; align-content: start; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.sec h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1.1; }
+.sec p { margin: 0; color: var(--soft); max-width: 60ch; }
+.sec .voice { font-family: var(--voice); font-style: italic; color: var(--ink); font-size: 17px; }
+
+.card { border: 1px solid var(--line); padding: 18px; display: grid; gap: 10px; background: var(--slab); }
+.card .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.card .t { font-family: var(--display); font-size: 24px; }
+.card .when { font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.card p { font-size: 14px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-family: var(--mono); font-size: 10.5px; padding: 2px 8px; border: 1px solid var(--line); color: var(--verdigris); }
+
+.offline .strata { color: var(--brass); }
+.offline .game { display: grid; gap: 4px; border-left: 1px solid var(--brass); padding-left: 14px; }
+.offline .game b { font-family: var(--display); font-weight: 400; font-size: 19px; color: var(--ink); }
+.offline .game span { font-size: 14px; color: var(--soft); }
+.vine-rule { display: block; width: 100%; max-width: 260px; height: 22px; }
+
+/* ---------- notes ---------- */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
+.note { display: grid; gap: 14px; align-content: start; }
+.swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.sw { display: grid; gap: 6px; font-family: var(--mono); font-size: 10.5px; line-height: 1.35; color: var(--dim); }
+.sw i { display: block; aspect-ratio: 1; border: 1px solid var(--line); }
+.sw em { font-style: normal; color: var(--soft); }
+.types { display: grid; gap: 14px; }
+.types div { display: grid; gap: 2px; }
+.types .s1 { font-family: var(--display); font-size: 30px; line-height: 1.1; }
+.types .s2 { font-family: var(--body); font-size: 16px; }
+.types .s3 { font-family: var(--voice); font-style: italic; font-size: 18px; }
+.types .s4 { font-family: var(--mono); font-size: 13px; color: var(--verdigris); }
+.types small { font-family: var(--mono); font-size: 10.5px; color: var(--dim); }
+.note ul { margin: 0; padding-left: 18px; color: var(--soft); display: grid; gap: 8px; }
+.note ul b { color: var(--ink); font-weight: 500; }
+
+.ask { display: grid; gap: 10px; max-width: 68ch; border-top: 1px solid var(--line); padding-top: 28px; }
+.ask h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 26px; }
+.ask p { margin: 0; color: var(--soft); }
+
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+@media (max-width: 560px) { .swatches { grid-template-columns: repeat(3, 1fr); } .hero { min-height: 660px; } }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <span class="label">leoazzopardi.org · étape 3 · piste A + B · v9</span>
+    <h1>Le puits et la forêt</h1>
+    <p>La scène suit la planche de Blame! : une grande paroi presque de face avec ses deux échelles, une paroi qui fuit vers le fond, un gouffre noir au centre et le plafond en treillis tout en haut. Le pont passe sous la ligne d'horizon et la mousse pousse en colonies. Au chargement, deux chats traversent le pont en courant. De temps en temps, deux raies manta glissent sous le plafond et s'éloignent dans la brume.</p>
+  </header>
+
+  <section class="site" aria-label="Aperçu du site">
+    <div class="nav">
+      <span class="mark">Léo Azzopardi<span>.</span></span>
+      <span class="links"><span>À propos</span><span>Parcours</span><span>Projets</span><span>Compétences</span><span>Hors-ligne</span><span>Contact</span></span>
+      <span class="lang"><b>FR</b> / EN</span>
+    </div>
+
+    <div class="hero">
+      <canvas id="scene" aria-hidden="true"></canvas>
+      <div class="hero-text">
+        <span class="strata">01 / Signal</span>
+        <h2>Léo Azzopardi</h2>
+        <p class="role">Administrateur systèmes &amp; réseaux · cloud, hybride, on-premise · Nice</p>
+        <p class="quote">J'apprends les systèmes comme on apprend une langue : jusqu'à pouvoir y penser.</p>
+        <div class="ctas"><span class="btn solid">Voir mes projets</span><span class="btn">Me contacter</span></div>
+      </div>
+    </div>
+
+    <div class="grow">
+      <label for="growth">Reprise de la nature</label>
+      <input id="growth" type="range" min="0" max="100" value="35" step="5">
+      <output id="growth-out" for="growth">35 % · mousses</output>
+      <button id="replay" type="button">Rejouer l'arrivée</button>
+      <button id="manta" type="button">Faire passer les raies</button>
+      <button id="motion" type="button" hidden>Animations réduites par ton système · les lire quand même</button>
+    </div>
+
+    <div class="sections">
+      <div class="sec">
+        <span class="strata">03 / Constructions</span>
+        <h3>Projets</h3>
+        <div class="card">
+          <div class="row"><span class="t">generation.cell</span><span class="when">en cours · 2026</span></div>
+          <p>Plateforme autonome de génération de contenu par IA, conçue pour résister aux pannes : machine à états, reprise après crash, appels idempotents.</p>
+          <div class="tags"><span>Python</span><span>FastAPI</span><span>PostgreSQL</span><span>Docker</span></div>
+        </div>
+      </div>
+      <div class="sec offline">
+        <span class="strata">05 / Hors-ligne</span>
+        <h3>Ce qui me construit</h3>
+        <svg class="vine-rule" viewBox="0 0 260 22" aria-hidden="true"><path d="M0 11 H150 C175 11 182 2 196 4 C210 6 208 18 196 17 C188 16 190 9 197 10" fill="none" stroke="#c9a253" stroke-width="1"/><circle cx="150" cy="11" r="2" fill="#c9a253"/></svg>
+        <p class="voice">Le VS Fighting est pour moi une école : des heures d'entraînement, l'analyse de ses erreurs, une communauté qui veut devenir meilleure ensemble.</p>
+        <div class="game"><b>Street Fighter 6 · Viper</b><span>Choisie pour son exigence d'exécution.</span></div>
+        <div class="game"><b>Super Smash Bros. Melee · Fox</b><span>Le premier amour, joué volontairement flashy.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes" aria-label="Notes de design">
+    <div class="note">
+      <span class="label">Palette</span>
+      <div class="swatches">
+        <div class="sw"><i style="background:#0d100f"></i><em>Béton nuit</em>fond</div>
+        <div class="sw"><i style="background:#171c1a"></i><em>Dalle</em>surfaces</div>
+        <div class="sw"><i style="background:#a8b2a9"></i><em>Lichen</em>texte</div>
+        <div class="sw"><i style="background:#e4dfd1"></i><em>Vélin</em>titres</div>
+        <div class="sw"><i style="background:#253029"></i><em>Joint</em>lignes</div>
+        <div class="sw"><i style="background:#8dbba3"></i><em>Vert-de-gris</em>accent pro</div>
+        <div class="sw"><i style="background:#c9a253"></i><em>Laiton</em>accent perso</div>
+        <div class="sw"><i style="background:#6f9147"></i><em>Mousse</em>image</div>
+        <div class="sw"><i style="background:#bfe8de"></i><em>Lueur</em>image</div>
+        <div class="sw"><i style="background:#6d7871"></i><em>Poussière</em>légendes</div>
+      </div>
+    </div>
+    <div class="note">
+      <span class="label">Typographie (validée)</span>
+      <div class="types">
+        <div><span class="s1">Lettres gravées</span><small>Marcellus · titres</small></div>
+        <div><span class="s2">Texte courant net et lisible pour un recruteur.</span><small>Instrument Sans · corps de texte</small></div>
+        <div><span class="s3">La voix personnelle, en italique.</span><small>Spectral italique · citations</small></div>
+        <div><span class="s4">02 / ORIGINE · Azure · Bash</span><small>JetBrains Mono · strates, tags</small></div>
+      </div>
+    </div>
+    <div class="note">
+      <span class="label">Ce qui change dans la v9</span>
+      <ul>
+        <li><b>Un seul pont</b> : le pont lointain a disparu.</li>
+        <li><b>Profondeur respectée</b> : la mousse des corniches situées derrière le pont ne se voit plus à travers lui. Le pont est désormais dessiné par-dessus.</li>
+        <li><b>Une course décalquée</b> : les dix poses de ta référence, rejouées au rythme de la vitesse. Les chats traversent le pont d'une seule traite, sans s'arrêter.</li>
+        
+      </ul>
+    </div>
+  </section>
+
+  <footer class="ask">
+    <h2>Qu'en penses-tu ?</h2>
+    <p>Si l'image reste figée, c'est que ton système demande de réduire les animations : le bouton « les lire quand même » apparaît alors à côté du curseur. Le site final respectera aussi ce réglage, en montrant les deux chats figés en pleine course.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var cv = document.getElementById("scene"), ctx = cv.getContext("2d");
+  var slider = document.getElementById("growth"), out = document.getElementById("growth-out");
+  var replay = document.getElementById("replay"), mantaBtn = document.getElementById("manta");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var arch = document.createElement("canvas"), actx = arch.getContext("2d");
+  var veg = document.createElement("canvas"), vctx = veg.getContext("2d");
+  var W = 0, H = 0, DPR = 1, S = null, growth = 0.35, start = null, vegCached = false, grain = null;
+  var mantaAt = null, nextManta = null, MANTA_D = 22;
+
+  function rng(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function ease(k) { k = clamp(k, 0, 1); return 1 - Math.pow(1 - k, 3); }
+  function smooth(k) { k = clamp(k, 0, 1); return k * k * (3 - 2 * k); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  var MOSS_D = ["#24371f", "#2f4a2a", "#3d5a2a", "#24403a"], MOSS_L = ["#56783a", "#6f9147", "#8fae5a", "#a9c46a"];
+
+  function makeGrain() {
+    var g = document.createElement("canvas"); g.width = g.height = 160;
+    var c = g.getContext("2d"), img = c.createImageData(160, 160), r = rng(5);
+    for (var i = 0; i < img.data.length; i += 4) { var v = r() < 0.5 ? 0 : 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = r() * 26; }
+    c.putImageData(img, 0, 0); return g;
+  }
+
+  /* ---------------- scene geometry (one-point perspective) ---------------- */
+  function build() {
+    var r = rng(23);
+    var f = Math.max(W, H * 1.6) * 0.5, VP = { x: W * 0.64, y: H * 0.26 };
+    var XL = -2.4, XR = 0.9, YC = -1.8, ZN = 0.3, ZF = 70;
+    function P(X, Y, Z) { return [VP.x + X * f / Z, VP.y + Y * f / Z]; }
+
+    var wallRows = [-1.5, -1.2, -0.9, -0.62, -0.35, -0.1, 0.38, 0.7, 1.05, 1.5, 2.1, 3, 4.5];
+    var zs = []; for (var z = 0.4; z < ZF; z *= 1.18) zs.push(z);
+    var panels = [];
+    [XL, XR].forEach(function (X) {
+      for (var i = 0; i < 140; i++) {
+        var z0 = 0.45 * Math.pow(60, r()), z1 = z0 * (1.04 + r() * 0.35), y0 = -1.8 + r() * 6, y1 = y0 + 0.04 + r() * 0.35;
+        panels.push({ X: X, z0: z0, z1: z1, y0: y0, y1: y1, fill: r() < 0.35 ? (r() < 0.5 ? "rgba(0,0,0,0.16)" : "rgba(228,223,209,0.04)") : null });
+      }
+    });
+    var ladders = [{ X: XL, z: 2.25, w: 0.07 }, { X: XL, z: 3.35, w: 0.06 }, { X: XL, z: 7.5, w: 0.05 }, { X: XR, z: 1.5, w: 0.06 }, { X: XR, z: 4.2, w: 0.05 }];
+    var ledges = [{ X: XL, Y: -1.2 }, { X: XL, Y: -0.5 }, { X: XL, Y: 0.7 }, { X: XL, Y: 1.4 }, { X: XR, Y: -1.0 }, { X: XR, Y: -0.4 }, { X: XR, Y: 0.6 }, { X: XR, Y: 1.2 }];
+    var hangs = [];
+    for (var h = 0; h < 12; h++) {
+      var Zh = 7 * Math.pow(6, r()), Xh = lerp(XL + 0.8, XR - 0.15, r()), Lh = 0.2 + r() * 0.8, wh = 0.06 + r() * 0.16, segs = [], yy = YC;
+      while (yy < YC + Lh) { var sl = 0.06 + r() * 0.25; segs.push({ y0: yy, y1: Math.min(YC + Lh, yy + sl), w: wh * (0.6 + r() * 0.7), notch: r() < 0.5 }); yy += sl; }
+      hangs.push({ X: Xh, Z: Zh, segs: segs });
+    }
+    hangs.sort(function (a, b) { return b.Z - a.Z; });
+    var cables = [];
+    for (var c = 0; c < 8; c++) cables.push({ X: lerp(XL + 0.6, XR - 0.1, r()), Z: 2 + r() * 8, L: 0.5 + r() * 0.9 });
+
+    // bridges sit below eye level, so their top surface shows
+    var B = { Z0: 1.6, Z1: 2.15, yt: 0.2, yb: 0.28 };
+    function box(b) {
+      return { xl: P(XL, b.yt, b.Z0)[0], xr: P(XR, b.yt, b.Z0)[0], xlB: P(XL, b.yt, b.Z1)[0], xrB: P(XR, b.yt, b.Z1)[0],
+        ytF: P(0, b.yt, b.Z0)[1], ybF: P(0, b.yb, b.Z0)[1], ytB: P(0, b.yt, b.Z1)[1], Z0: b.Z0, Z1: b.Z1, Y: b.yt };
+    }
+    var bb = box(B);
+
+    /* ---- nature: it only grows where it would ---- */
+    var blobs = [], drapes = [], ferns = [], shrooms = [], glows = [], LAY = "w";
+    function hidden(x, y) { return LAY === "w" && x > bb.xl && x < bb.xr && y > bb.ytB - 3 && y < bb.ybF + 2; }
+    function fogA(Z) { return clamp(1 - Math.log(Z / 1.2) / Math.log(40), 0.25, 1); }
+    function pick(arr) { return arr[(r() * arr.length) | 0]; }
+    function speck(x, y, sz, t, thr, a, light) { if (hidden(x, y)) return; blobs.push({ x: x, y: y, sz: sz, col: light ? pick(MOSS_L) : pick(MOSS_D), t: t, thr: thr, a: a, lay: LAY }); }
+    function cushion(x, y, s, t, thr, a) {
+      if (hidden(x, y)) return;
+      blobs.push({ x: x, y: y - s * 0.25, rx: s * (1.1 + r() * 0.6), ry: s * (0.45 + r() * 0.25), col: pick(MOSS_D), t: t, thr: thr, a: a, base: true, lay: LAY });
+      var n = Math.min(26, 4 + s * s * 0.5) | 0;
+      for (var i = 0; i < n; i++) {
+        var u = r() * 2 - 1, v = r();
+        speck(x + u * s * 1.3, y - s * 0.25 - v * s * 0.7 * (1 - u * u * 0.6), 0.6 + r() * Math.min(1.8, s * 0.22), t + 0.2 + r() * 0.6, thr, a, v > 0.45);
+      }
+    }
+    function colonies(lo, hi, n, spread) { var cs = []; for (var i = 0; i < n; i++) cs.push({ at: lerp(lo, hi, r()), sp: spread * (0.6 + r() * 0.8), k: 0.7 + r() * 0.3 }); return cs; }
+    function density(cs, v, ph) { var d = 0; cs.forEach(function (c) { d = Math.max(d, c.k * Math.exp(-Math.abs(v - c.at) / c.sp)); }); return d * (0.82 + 0.18 * Math.sin(v * 37 + ph)); }
+
+    ledges.forEach(function (L) {
+      var cs = colonies(Math.log(0.42), Math.log(20), 2 + (r() < 0.5 ? 1 : 0), 0.5), ph = r() * 6;
+      for (var Z = 0.42; Z < 20; Z *= 1.03) {
+        var p = P(L.X, L.Y, Z); if (p[0] < -30 || p[0] > W + 30 || p[1] < -30 || p[1] > H + 30) continue;
+        var d = density(cs, Math.log(Z), ph); if (d < 0.08) continue;
+        var thr = (1 - d) * 0.55, t = 0.4 + (1 - d) * 5 + r() * 0.4, a = fogA(Z), sz = Math.max(0.8, 0.03 * f / Z * (0.45 + d * 0.8));
+        cushion(p[0], p[1], sz, t, thr, a);
+        if (d > 0.45 && r() < 0.22) {
+          var len = (0.08 + r() * 0.5) * d;
+          for (var y2 = L.Y + 0.04; y2 < L.Y + len; y2 += 0.006 * Z) {
+            var k = (y2 - L.Y) / len; if (r() > 1 - k * 0.85) continue;
+            var q = P(L.X, y2, Z * (1 + (r() - 0.5) * 0.012));
+            speck(q[0], q[1], (0.6 + r() * 1.2) * Math.min(1.5, sz * 0.25), t + 1 + k * 2, thr + 0.12, a * (1 - k * 0.6), r() < 0.4);
+          }
+        }
+        if (d > 0.35 && r() < 0.18) drapes.push({ x: p[0] + (r() - 0.5) * sz, y: p[1] + 0.035 * f / Z, len: (0.02 + r() * 0.12) * f / Z * d, w: Math.max(0.6, sz * 0.3), t: t + 0.8, thr: thr + 0.05, col: pick(MOSS_D), a: a, lay: "w" });
+        if (d > 0.75 && Z < 3 && r() < 0.08) ferns.push({ x: p[0], y: p[1] - sz * 0.4, size: (0.06 + r() * 0.08) * f / Z, ang: -Math.PI / 2 + (L.X < 0 ? 0.5 : -0.5) + (r() - 0.5) * 0.6, dir: L.X < 0 ? 1 : -1, t: t + 1, thr: thr + 0.1, lay: "w" });
+        if (d > 0.8 && r() < 0.04 && !hidden(p[0], p[1])) glows.push({ x: p[0], y: p[1] - sz, rad: sz * 4 + 6, ph: r() * 6, thr: thr + 0.12 });
+      }
+    });
+    // the bridge: moss across the deck, creeping down the face, curtains under mossy spans only
+    LAY = "b";
+    [[bb, 1]].forEach(function (pair) {
+      var b = pair[0], k = pair[1], Zm = (b.Z0 + b.Z1) / 2, a = fogA(Zm), cs = colonies(0, 1, 3 + (r() < 0.5 ? 1 : 0), 0.11), ph = r() * 6, s0 = 0.02 * f / Zm, hgt = b.ybF - b.ytF;
+      for (var x = Math.max(b.xl, -10); x < Math.min(b.xr, W + 10); x += 3 / k) {
+        var d = density(cs, x / W, ph); if (d < 0.08) continue;
+        var thr = (1 - d) * 0.55, t = 0.6 + (1 - d) * 5 + r() * 0.4;
+        var depth = r() * Math.min(1, d * 1.3);
+        cushion(x, lerp(b.ytF, b.ytB, depth) + 1, s0 * (0.5 + d * 1.1), t, thr, a);
+        if (d > 0.55) cushion(x + (r() - 0.5) * 4, b.ytF + 1, s0 * (0.4 + d * 0.8), t + 0.3, thr + 0.03, a);
+        if (d > 0.4) {
+          var reach = hgt * Math.min(1, (d - 0.4) * 2.2);
+          for (var y3 = b.ytF + 2; y3 < b.ytF + reach; y3 += 2) if (r() < 0.55 * (1 - (y3 - b.ytF) / (reach + 1))) speck(x + (r() - 0.5) * 3, y3, 0.8 + r() * 1.4 * k, t + 0.8 + (y3 - b.ytF) / hgt, thr + 0.08, a, r() < 0.3);
+        }
+        if (d > 0.4 && r() < 0.6 * d) drapes.push({ x: x, y: b.ybF, len: (4 + r() * 60) * (d - 0.3) * k, w: 0.7 + r() * 1.5 * k, t: t + 0.8 + r() * 1.2, thr: thr + 0.1, col: r() < 0.6 ? pick(MOSS_D) : pick(MOSS_L), a: a, lay: "b" });
+        if (k === 1 && d > 0.7 && r() < 0.05) ferns.push({ x: x, y: lerp(b.ytF, b.ytB, 0.85), size: 10 + r() * 14 * d, ang: -Math.PI / 2 + (r() - 0.5) * 1.2, dir: r() < 0.5 ? -1 : 1, t: t + 1.2, thr: thr + 0.08, lay: "b" });
+        if (k === 1 && d > 0.75 && r() < 0.05) shrooms.push({ x: x, y: lerp(b.ytF, b.ytB, 0.2 + r() * 0.7), s: 1.5 + r() * 2, t: t + 2.5 + r(), thr: thr + 0.12 });
+        if (d > 0.82 && r() < 0.025) glows.push({ x: x, y: b.ytF - 2, rad: 12 + r() * 14, ph: r() * 6, thr: thr + 0.1 });
+      }
+    });
+    LAY = "w";
+    hangs.forEach(function (hg) {
+      var d = r(), a = fogA(hg.Z), thr = (1 - d) * 0.7, t = 1 + (1 - d) * 5;
+      for (var i = 1; i < hg.segs.length; i++) {
+        var up = hg.segs[i - 1], sg = hg.segs[i];
+        if (sg.w <= up.w * 1.05) continue;
+        [-1, 1].forEach(function (sd) { var q = P(hg.X + sd * (up.w + sg.w) / 4, sg.y0, hg.Z); cushion(q[0], q[1], Math.max(0.7, (sg.w - up.w) * f / hg.Z * 0.25), t + r(), thr + r() * 0.1, a); });
+      }
+      var e = hg.segs[hg.segs.length - 1], n = 2 + (r() * 6 | 0);
+      for (var j = 0; j < n; j++) {
+        var q2 = P(hg.X + (r() - 0.5) * e.w, e.y1, hg.Z), len2 = (0.05 + r() * 0.4) * f / hg.Z * d;
+        if (len2 > 1) drapes.push({ x: q2[0], y: q2[1], len: len2, w: Math.max(0.5, 0.012 * f / hg.Z), t: t + 0.5 + r(), thr: thr + 0.05, col: pick(MOSS_D), a: a * 0.9, lay: "w" });
+      }
+    });
+
+    var motes = [];
+    for (var m = 0; m < 40; m++) motes.push({ x: r() * W, y: r() * H, sp: 2 + r() * 6, ph: r() * 6.28, rad: 0.8 + r() * 1.6, brass: r() < 0.22, thr: r() * 0.9 });
+
+    // the two cats: a lane across the deck, a doorway in the right wall to vanish into
+    var Zc = 1.8, catL = Math.max(22, 0.095 * f / Zc), lane = P(0, B.yt, Zc)[1], door = P(XR, B.yt, Zc)[0];
+    var cats = { L: catL, y: lane, xs: -2 * catL, a1: Math.min(W * 0.3, door - 16 * catL), a2: Math.min(W * 0.6, door - 6 * catL), door: door };
+
+    var tEnd = 0;
+    blobs.forEach(function (q) { if (q.t > tEnd) tEnd = q.t; });
+    S = { f: f, VP: VP, P: P, XL: XL, XR: XR, YC: YC, ZN: ZN, ZF: ZF, zs: zs, wallRows: wallRows, panels: panels, ladders: ladders, ledges: ledges, hangs: hangs, cables: cables,
+      B: B, bb: bb, blobs: blobs, drapes: drapes, ferns: ferns, shrooms: shrooms, glows: glows, motes: motes, cats: cats, tVeg: Math.min(tEnd, 12) + 1.2 };
+  }
+
+  /* ---------------- architecture (static) ---------------- */
+  function poly(c, pts) { c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for (var i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.closePath(); }
+  function line(c, a, b) { c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.stroke(); }
+  function paintArch() {
+    var c = actx, s = S, P = s.P, VP = s.VP;
+    c.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var bg = c.createRadialGradient(VP.x, VP.y, 0, VP.x, VP.y, Math.max(W, H) * 0.8);
+    bg.addColorStop(0, "#0c100e"); bg.addColorStop(0.5, "#181e1c"); bg.addColorStop(1, "#222926");
+    c.fillStyle = bg; c.fillRect(0, 0, W, H);
+
+    s.hangs.forEach(function (hg) {
+      var k = clamp(Math.log(hg.Z / 7) / Math.log(6), 0, 1);
+      var col = "rgb(" + (lerp(52, 24, k) | 0) + "," + (lerp(60, 30, k) | 0) + "," + (lerp(56, 27, k) | 0) + ")";
+      c.fillStyle = col;
+      hg.segs.forEach(function (sg) {
+        var a = P(hg.X - sg.w / 2, sg.y0, hg.Z), b = P(hg.X + sg.w / 2, sg.y1, hg.Z);
+        c.fillRect(a[0], a[1], Math.max(1, b[0] - a[0]), b[1] - a[1]);
+        if (sg.notch) { c.fillStyle = "rgba(0,0,0,0.3)"; c.fillRect(a[0], lerp(a[1], b[1], 0.4), Math.max(1, b[0] - a[0]), Math.max(1, (b[1] - a[1]) * 0.08)); c.fillStyle = col; }
+      });
+    });
+
+    var ceil = [P(s.XL, s.YC, s.ZN), P(s.XR, s.YC, s.ZN), P(s.XR, s.YC, s.ZF), P(s.XL, s.YC, s.ZF)];
+    var left = [P(s.XL, s.YC, s.ZN), P(s.XL, s.YC, s.ZF), P(s.XL, 8, s.ZF), P(s.XL, 8, s.ZN)];
+    var right = [P(s.XR, s.YC, s.ZN), P(s.XR, s.YC, s.ZF), P(s.XR, 8, s.ZF), P(s.XR, 8, s.ZN)];
+    [[ceil, "#262d2b", "#1d2321"], [left, "#6b736e", "#232926"], [right, "#5a625d", "#1c2120"]].forEach(function (w) {
+      var g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, w[1]); g.addColorStop(1, w[2]);
+      c.fillStyle = g; poly(c, w[0]); c.fill();
+    });
+
+    // ceiling lattice: beams in both directions
+    c.save(); poly(c, ceil); c.clip();
+    c.strokeStyle = "rgba(5,7,6,0.75)";
+    for (var xi = s.XL; xi < s.XR; xi += 0.09) { c.lineWidth = (Math.round(xi * 100) % 3 === 0) ? 2 : 1; line(c, P(xi, s.YC, s.ZN), P(xi, s.YC, s.ZF)); }
+    s.zs.forEach(function (Z, i) { c.lineWidth = i % 2 ? 1 : 2.5; line(c, P(s.XL, s.YC, Z), P(s.XR, s.YC, Z)); });
+    c.restore();
+
+    [s.XL, s.XR].forEach(function (X) {
+      var wall = X < 0 ? left : right;
+      c.save(); poly(c, wall); c.clip();
+      var r = rng(X < 0 ? 31 : 37);
+      c.lineWidth = 1;
+      for (var i = 0; i < 1800; i++) {
+        var Z = 0.35 * Math.pow(40, r()), Y = -1.8 + r() * 6, p = P(X, Y, Z), q = P(X, Y, Z * (1 + (0.04 + r() * 0.2) * 0.8));
+        c.strokeStyle = "rgba(0,0,0," + (0.05 + r() * 0.12) + ")"; line(c, p, q);
+      }
+      c.strokeStyle = "rgba(5,7,6,0.55)";
+      s.wallRows.forEach(function (Y) { line(c, P(X, Y, s.ZN), P(X, Y, s.ZF)); });
+      s.zs.forEach(function (Z) { line(c, P(X, s.YC, Z), P(X, 8, Z)); });
+      s.panels.forEach(function (pn) {
+        if (pn.X !== X) return;
+        var pts = [P(X, pn.y0, pn.z0), P(X, pn.y0, pn.z1), P(X, pn.y1, pn.z1), P(X, pn.y1, pn.z0)];
+        if (pn.fill) { c.fillStyle = pn.fill; poly(c, pts); c.fill(); }
+        c.strokeStyle = "rgba(5,7,6,0.45)"; poly(c, pts); c.stroke();
+      });
+      // ladders: dark girders with pale rungs, as on the plate
+      s.ladders.forEach(function (ld) {
+        if (ld.X !== X) return;
+        var z2 = ld.z * (1 + ld.w);
+        c.fillStyle = "#151a18"; poly(c, [P(X, s.YC, ld.z), P(X, s.YC, z2), P(X, 8, z2), P(X, 8, ld.z)]); c.fill();
+        c.strokeStyle = "rgba(200,206,200,0.22)"; c.lineWidth = 1;
+        for (var Y = s.YC; Y < 6; Y += 0.03) line(c, P(X, Y, ld.z * 1.004), P(X, Y, z2 * 0.996));
+        c.strokeStyle = "rgba(5,7,6,0.9)"; c.lineWidth = Math.max(1, 4 / ld.z);
+        line(c, P(X, s.YC, ld.z), P(X, 8, ld.z)); line(c, P(X, s.YC, z2), P(X, 8, z2));
+      });
+      s.ledges.forEach(function (L) {
+        if (L.X !== X) return;
+        c.fillStyle = "rgba(0,0,0,0.35)"; poly(c, [P(X, L.Y, s.ZN), P(X, L.Y, s.ZF), P(X, L.Y + 0.035, s.ZF), P(X, L.Y + 0.035, s.ZN)]); c.fill();
+        c.strokeStyle = "rgba(228,223,209,0.14)"; c.lineWidth = 1; line(c, P(X, L.Y, s.ZN), P(X, L.Y, s.ZF));
+      });
+      c.restore();
+    });
+
+    // the chasm darkens toward the vanishing point and below
+    var fog = c.createRadialGradient(VP.x, VP.y, 0, VP.x, VP.y, Math.max(W, H) * 0.32);
+    fog.addColorStop(0, "rgba(8,11,10,0.92)"); fog.addColorStop(0.6, "rgba(10,13,12,0.4)"); fog.addColorStop(1, "rgba(10,13,12,0)");
+    c.fillStyle = fog; c.fillRect(0, 0, W, H);
+    var abyss = c.createLinearGradient(0, VP.y, 0, H); abyss.addColorStop(0, "rgba(8,10,9,0)"); abyss.addColorStop(1, "rgba(8,10,9,0.85)");
+    c.fillStyle = abyss; c.fillRect(0, VP.y, W, H - VP.y);
+
+    s.cables.forEach(function (cb) {
+      var a = P(cb.X, s.YC, cb.Z), b = P(cb.X + 0.03, s.YC + cb.L, cb.Z);
+      c.strokeStyle = "rgba(210,214,208,0.35)"; c.lineWidth = Math.max(1, 2.2 / cb.Z);
+      c.beginPath(); c.moveTo(a[0], a[1]); c.bezierCurveTo(a[0] + 10, lerp(a[1], b[1], 0.3), b[0] - 12, lerp(a[1], b[1], 0.7), b[0], b[1]); c.stroke();
+    });
+
+    // doorway in the right wall where the deck meets it
+    var B = s.B, d0 = P(s.XR, B.yt, B.Z0 + 0.04), d1 = P(s.XR, B.yt, B.Z1 - 0.04), d2 = P(s.XR, B.yt - 0.075, B.Z1 - 0.04), d3 = P(s.XR, B.yt - 0.075, B.Z0 + 0.04);
+    c.fillStyle = "#050706"; poly(c, [d0, d1, d2, d3]); c.fill();
+  }
+
+  /* ---------------- nature ---------------- */
+  function drawBridge(c) {
+    var s = S, P = s.P;
+    [[s.bb, "#68716c", "#4b5450", s.B]].forEach(function (pr) {
+      var b = pr[0], wb = pr[3];
+      c.fillStyle = pr[1]; poly(c, [[b.xl, b.ytF], [b.xr, b.ytF], [b.xrB, b.ytB], [b.xlB, b.ytB]]); c.fill();
+      c.fillStyle = pr[2]; c.fillRect(b.xl, b.ytF, b.xr - b.xl, b.ybF - b.ytF);
+      var hgt = b.ybF - b.ytF, r = rng(b.Z0 * 100 | 0);
+      c.strokeStyle = "rgba(5,7,6,0.55)"; c.lineWidth = 1;
+      for (var X = s.XL; X < s.XR; X += 0.11 + r() * 0.08) line(c, P(X, wb.yt, wb.Z0), P(X, wb.yt, wb.Z1));
+      line(c, P(s.XL, wb.yt, (wb.Z0 + wb.Z1) / 2), P(s.XR, wb.yt, (wb.Z0 + wb.Z1) / 2));
+      for (var x = b.xl; x < b.xr; x += hgt * (1.8 + r() * 2.5)) line(c, [x, b.ytF], [x, b.ybF]);
+      line(c, [b.xl, b.ytF + hgt * 0.4], [b.xr, b.ytF + hgt * 0.4]);
+      for (var k = 0; k < 30; k++) { var gx = lerp(b.xl, b.xr, r()); c.fillStyle = "rgba(0,0,0," + (0.1 + r() * 0.2) + ")"; c.fillRect(gx, b.ytF + hgt * 0.4, 1 + r() * 3, hgt * (0.3 + r() * 0.6)); }
+      c.strokeStyle = "rgba(228,223,209,0.3)"; line(c, [b.xl, b.ytF + 0.5], [b.xr, b.ytF + 0.5]);
+      c.fillStyle = "rgba(0,0,0,0.5)"; c.fillRect(b.xl, b.ybF, b.xr - b.xl, 2);
+    });
+  }
+  function paintNature(c, T) {
+    // walls first, then the bridge on top of them, then what grows on the bridge
+    paintGrowth(c, T, "w"); drawBridge(c); paintGrowth(c, T, "b");
+  }
+  function paintGrowth(c, T, lay) {
+    var s = S;
+    c.lineCap = "round"; c.lineJoin = "round";
+    s.drapes.forEach(function (d) {
+      if (d.lay !== lay || d.thr > growth || T < d.t) return;
+      var l = d.len * ease((T - d.t) / 2.2);
+      c.globalAlpha = d.a; c.strokeStyle = d.col; c.lineWidth = d.w;
+      c.beginPath(); c.moveTo(d.x, d.y); c.quadraticCurveTo(d.x + l * 0.08, d.y + l * 0.5, d.x + l * 0.03, d.y + l); c.stroke();
+      c.globalAlpha = 1;
+    });
+    s.blobs.forEach(function (b) {
+      if (b.lay !== lay || b.thr > growth || T < b.t) return;
+      var k = ease((T - b.t) / 0.9); c.fillStyle = b.col;
+      if (b.base) { c.globalAlpha = 0.85 * b.a; c.beginPath(); c.ellipse(b.x, b.y, b.rx * k, b.ry * k, 0, 0, 6.29); c.fill(); }
+      else { var z = b.sz * k; c.globalAlpha = b.a; c.fillRect(b.x - z / 2, b.y - z / 2, z, z); }
+      c.globalAlpha = 1;
+    });
+    s.ferns.forEach(function (fn) {
+      if (fn.lay !== lay || fn.thr > growth || T < fn.t) return;
+      var u = ease((T - fn.t) / 3.5), N = 26, L = fn.size * (0.3 + 0.7 * u), st = L / N, a = fn.ang, x = fn.x, y = fn.y, pts = [[x, y]];
+      for (var i = 0; i < N; i++) { var k = i > N * 0.5 ? fn.dir * 0.09 * Math.exp((i - N * 0.5) / (N * 0.5) * 2.2) * (1.3 - u) : fn.dir * 0.035; a += k; x += Math.cos(a) * st; y += Math.sin(a) * st; pts.push([x, y]); }
+      c.strokeStyle = "#3d5a2a"; c.lineWidth = Math.max(0.8, fn.size * 0.03);
+      c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for (var j = 1; j < pts.length; j++) c.lineTo(pts[j][0], pts[j][1]); c.stroke();
+      c.fillStyle = "#56783a";
+      for (var q = 3; q < N * 0.75; q += 2) {
+        var p0 = pts[q], p1 = pts[q + 1], an = Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), len = fn.size * 0.2 * (1 - q / N) * u;
+        [-1, 1].forEach(function (sd) {
+          c.save(); c.translate(p0[0], p0[1]); c.rotate(an + sd * 1.1);
+          c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(len * 0.5, -len * 0.22, len, 0); c.quadraticCurveTo(len * 0.5, len * 0.22, 0, 0); c.fill(); c.restore();
+        });
+      }
+    });
+    s.shrooms.forEach(function (m) {
+      if (lay !== "b" || m.thr > growth || T < m.t) return;
+      var k = ease((T - m.t) / 1.2);
+      c.strokeStyle = "rgba(216,210,191,0.7)"; c.lineWidth = 0.8; line(c, [m.x, m.y], [m.x, m.y - m.s * 2 * k]);
+      c.fillStyle = "rgba(216,210,191,0.9)"; c.beginPath(); c.ellipse(m.x, m.y - m.s * 2 * k, m.s * k, m.s * 0.5 * k, 0, Math.PI, 0); c.fill();
+    });
+  }
+
+  /* ---------------- the cats ----------------
+     A bounding run, keyed on four poses of a cat's gallop (forelegs land, gather with the
+     hind feet under the chest, push off, full extension in the air) and interpolated with
+     Catmull-Rom so the spine flexes and the body flies. Units are body lengths. Slowing
+     down blends into a standing, watchful pose. The leader runs from A to B in bursts and
+     stops to look around; the follower keeps its distance. */
+  // Ten silhouettes of a cat's bounding run, traced from the reference animation (units: body lengths, ground at 0).
+  var RUN = [[-0.277,-0.635,-0.168,-0.635,-0.132,-0.629,-0.129,-0.623,-0.113,-0.623,-0.097,-0.613,-0.074,-0.613,-0.065,-0.603,-0.042,-0.603,-0.035,-0.594,-0.023,-0.594,-0.013,-0.584,0.006,-0.581,0.013,-0.571,0.071,-0.552,0.074,-0.545,0.113,-0.535,0.119,-0.526,0.145,-0.523,0.148,-0.516,0.161,-0.516,0.177,-0.506,0.226,-0.503,0.265,-0.49,0.426,-0.497,0.452,-0.516,0.477,-0.516,0.477,-0.471,0.494,-0.461,0.494,-0.452,0.503,-0.452,0.503,-0.445,0.513,-0.442,0.513,-0.435,0.532,-0.419,0.542,-0.374,0.561,-0.339,0.571,-0.335,0.571,-0.316,0.565,-0.316,0.552,-0.297,0.519,-0.284,0.516,-0.277,0.484,-0.277,0.435,-0.294,0.403,-0.294,0.387,-0.303,0.342,-0.303,0.284,-0.313,0.271,-0.303,0.265,-0.284,0.245,-0.271,0.235,-0.252,0.235,-0.235,0.242,-0.229,0.242,-0.203,0.252,-0.171,0.258,-0.171,0.258,-0.161,0.271,-0.155,0.281,-0.135,0.29,-0.132,0.29,-0.126,0.377,-0.045,0.377,-0.016,0.313,-0.013,0.303,-0.023,0.274,-0.032,0.274,-0.042,0.255,-0.052,0.255,-0.061,0.248,-0.061,0.232,-0.087,0.223,-0.09,0.206,-0.11,0.197,-0.11,0.197,-0.119,0.177,-0.139,0.152,-0.148,0.139,-0.158,0.139,-0.165,0.126,-0.168,0.123,-0.177,0.103,-0.187,0.084,-0.223,0.084,-0.252,0.071,-0.258,0.052,-0.258,0.042,-0.248,-0.026,-0.235,-0.026,-0.229,-0.045,-0.216,-0.065,-0.181,-0.071,-0.181,-0.09,-0.158,-0.094,-0.145,-0.103,-0.135,-0.103,-0.123,-0.11,-0.119,-0.116,-0.1,-0.116,-0.065,-0.106,-0.065,-0.097,-0.055,-0.097,-0.026,-0.113,-0.019,-0.174,-0.023,-0.181,-0.048,-0.19,-0.061,-0.194,-0.1,-0.21,-0.1,-0.21,-0.094,-0.216,-0.094,-0.229,-0.077,-0.239,-0.077,-0.284,-0.113,-0.287,-0.126,-0.297,-0.129,-0.297,-0.139,-0.355,-0.174,-0.374,-0.19,-0.377,-0.2,-0.41,-0.219,-0.429,-0.248,-0.461,-0.268,-0.458,-0.297,-0.452,-0.297,-0.448,-0.316,-0.432,-0.335,-0.432,-0.352,-0.452,-0.365,-0.471,-0.39,-0.471,-0.4,-0.477,-0.4,-0.481,-0.442,-0.513,-0.439,-0.516,-0.432,-0.539,-0.426,-0.552,-0.413,-0.584,-0.4,-0.613,-0.371,-0.635,-0.368,-0.645,-0.355,-0.668,-0.352,-0.681,-0.342,-0.697,-0.342,-0.755,-0.313,-0.777,-0.313,-0.784,-0.303,-0.803,-0.297,-0.848,-0.29,-0.89,-0.265,-0.929,-0.255,-0.99,-0.255,-0.997,-0.258,-0.997,-0.268,-1.01,-0.271,-1.01,-0.29,-1.003,-0.294,-1.0,-0.306,-0.952,-0.323,-0.923,-0.342,-0.835,-0.355,-0.781,-0.374,-0.777,-0.384,-0.742,-0.394,-0.729,-0.406,-0.703,-0.406,-0.661,-0.423,-0.658,-0.429,-0.642,-0.432,-0.626,-0.448,-0.613,-0.452,-0.587,-0.474,-0.587,-0.481,-0.577,-0.481,-0.574,-0.49,-0.565,-0.49,-0.561,-0.5,-0.548,-0.503,-0.506,-0.535,-0.435,-0.565,-0.339,-0.626],[-0.184,-0.623,-0.116,-0.623,-0.11,-0.616,-0.019,-0.61,0.003,-0.594,0.023,-0.59,0.042,-0.574,0.071,-0.568,0.084,-0.555,0.1,-0.555,0.135,-0.529,0.165,-0.526,0.168,-0.519,0.2,-0.516,0.216,-0.506,0.261,-0.497,0.352,-0.49,0.403,-0.51,0.458,-0.51,0.471,-0.526,0.484,-0.529,0.484,-0.535,0.503,-0.545,0.523,-0.545,0.523,-0.51,0.516,-0.51,0.516,-0.49,0.523,-0.49,0.523,-0.484,0.532,-0.481,0.532,-0.474,0.542,-0.471,0.542,-0.465,0.552,-0.461,0.571,-0.435,0.571,-0.423,0.577,-0.416,0.574,-0.374,0.59,-0.358,0.597,-0.332,0.587,-0.326,0.584,-0.313,0.555,-0.29,0.49,-0.287,0.487,-0.294,0.461,-0.303,0.361,-0.313,0.358,-0.306,0.345,-0.306,0.329,-0.294,0.316,-0.294,0.271,-0.274,0.252,-0.255,0.213,-0.239,0.206,-0.229,0.187,-0.229,0.171,-0.219,0.158,-0.219,0.148,-0.21,0.148,-0.197,0.142,-0.19,0.142,-0.142,0.152,-0.074,0.161,-0.061,0.197,-0.052,0.21,-0.042,0.21,-0.013,0.126,-0.01,0.103,-0.032,0.103,-0.042,0.094,-0.045,0.094,-0.058,0.084,-0.068,0.084,-0.084,0.074,-0.1,0.065,-0.174,0.055,-0.19,0.042,-0.245,0.013,-0.245,-0.026,-0.229,-0.039,-0.21,-0.048,-0.21,-0.048,-0.203,-0.065,-0.197,-0.074,-0.184,-0.055,-0.177,-0.039,-0.161,0.016,-0.139,0.016,-0.132,0.032,-0.123,0.035,-0.094,0.032,-0.084,0.023,-0.084,0.019,-0.074,-0.006,-0.074,-0.01,-0.081,-0.029,-0.081,-0.035,-0.09,-0.068,-0.097,-0.084,-0.106,-0.113,-0.11,-0.129,-0.119,-0.152,-0.119,-0.168,-0.106,-0.168,-0.1,-0.194,-0.087,-0.197,-0.074,-0.206,-0.071,-0.206,-0.065,-0.223,-0.052,-0.232,-0.052,-0.235,-0.045,-0.271,-0.045,-0.271,-0.1,-0.261,-0.106,-0.252,-0.129,-0.242,-0.132,-0.242,-0.142,-0.232,-0.145,-0.232,-0.158,-0.242,-0.158,-0.242,-0.168,-0.252,-0.174,-0.255,-0.223,-0.281,-0.271,-0.294,-0.274,-0.31,-0.29,-0.345,-0.303,-0.355,-0.316,-0.384,-0.332,-0.397,-0.352,-0.403,-0.352,-0.413,-0.377,-0.413,-0.406,-0.481,-0.39,-0.484,-0.384,-0.519,-0.371,-0.526,-0.361,-0.535,-0.361,-0.571,-0.332,-0.594,-0.323,-0.613,-0.323,-0.626,-0.313,-0.642,-0.313,-0.723,-0.274,-0.8,-0.271,-0.861,-0.235,-0.935,-0.235,-0.952,-0.248,-0.968,-0.252,-0.958,-0.284,-0.948,-0.297,-0.939,-0.297,-0.929,-0.306,-0.903,-0.316,-0.871,-0.316,-0.855,-0.326,-0.803,-0.326,-0.719,-0.345,-0.694,-0.365,-0.655,-0.374,-0.652,-0.381,-0.632,-0.384,-0.616,-0.397,-0.581,-0.406,-0.568,-0.419,-0.539,-0.432,-0.516,-0.455,-0.465,-0.474,-0.439,-0.503,-0.426,-0.506,-0.426,-0.513,-0.4,-0.539,-0.39,-0.539,-0.377,-0.555,-0.365,-0.558,-0.355,-0.571,-0.319,-0.594],[-0.223,-0.587,-0.158,-0.587,-0.11,-0.577,-0.023,-0.535,0.0,-0.535,0.01,-0.526,0.029,-0.523,0.042,-0.513,0.148,-0.481,0.203,-0.481,0.271,-0.5,0.294,-0.5,0.31,-0.51,0.365,-0.519,0.371,-0.529,0.413,-0.532,0.432,-0.548,0.432,-0.555,0.465,-0.558,0.471,-0.548,0.471,-0.51,0.494,-0.5,0.529,-0.458,0.545,-0.452,0.552,-0.432,0.552,-0.384,0.558,-0.384,0.568,-0.371,0.568,-0.348,0.561,-0.339,0.513,-0.306,0.474,-0.306,0.416,-0.329,0.358,-0.326,0.355,-0.319,0.342,-0.319,0.329,-0.303,0.29,-0.29,0.232,-0.235,0.177,-0.223,0.077,-0.216,0.068,-0.21,0.058,-0.184,0.029,-0.145,0.019,-0.142,0.01,-0.116,-0.016,-0.087,-0.013,-0.074,-0.003,-0.074,0.026,-0.052,0.026,-0.029,0.019,-0.019,-0.01,-0.019,-0.013,-0.013,-0.032,-0.006,-0.135,-0.006,-0.135,-0.013,-0.171,-0.019,-0.19,-0.035,-0.203,-0.039,-0.255,-0.081,-0.294,-0.142,-0.303,-0.142,-0.306,-0.161,-0.29,-0.184,-0.29,-0.2,-0.3,-0.21,-0.313,-0.21,-0.323,-0.239,-0.332,-0.239,-0.345,-0.258,-0.39,-0.277,-0.394,-0.287,-0.4,-0.287,-0.403,-0.297,-0.41,-0.297,-0.413,-0.306,-0.435,-0.323,-0.461,-0.381,-0.477,-0.381,-0.519,-0.355,-0.539,-0.352,-0.548,-0.342,-0.565,-0.342,-0.577,-0.332,-0.577,-0.326,-0.59,-0.323,-0.603,-0.31,-0.642,-0.3,-0.687,-0.268,-0.752,-0.255,-0.755,-0.248,-0.774,-0.245,-0.787,-0.235,-0.861,-0.235,-0.894,-0.226,-0.965,-0.219,-0.987,-0.248,-0.987,-0.268,-0.974,-0.287,-0.89,-0.287,-0.81,-0.316,-0.761,-0.316,-0.748,-0.329,-0.716,-0.339,-0.706,-0.352,-0.671,-0.365,-0.668,-0.371,-0.642,-0.374,-0.616,-0.397,-0.597,-0.4,-0.581,-0.413,-0.568,-0.413,-0.561,-0.423,-0.503,-0.452,-0.484,-0.471,-0.474,-0.471,-0.471,-0.481,-0.461,-0.481,-0.432,-0.51,-0.406,-0.513,-0.406,-0.519,-0.39,-0.532,-0.348,-0.552,-0.345,-0.558,-0.306,-0.574,-0.265,-0.574,-0.248,-0.584],[0.532,-0.548,0.545,-0.548,0.545,-0.503,0.555,-0.5,0.571,-0.481,0.581,-0.481,0.61,-0.461,0.619,-0.445,0.619,-0.416,0.639,-0.403,0.639,-0.394,0.648,-0.394,0.652,-0.365,0.639,-0.355,0.639,-0.348,0.603,-0.332,0.529,-0.332,0.523,-0.339,0.494,-0.342,0.439,-0.342,0.426,-0.326,0.419,-0.326,0.419,-0.316,0.413,-0.316,0.4,-0.297,0.394,-0.297,0.368,-0.271,0.361,-0.258,0.345,-0.252,0.345,-0.245,0.323,-0.229,0.319,-0.219,0.294,-0.216,0.277,-0.21,0.274,-0.2,0.261,-0.197,0.255,-0.145,0.245,-0.145,0.242,-0.135,0.223,-0.132,0.21,-0.123,0.181,-0.119,0.161,-0.094,0.139,-0.084,0.045,-0.081,0.045,-0.087,0.016,-0.094,0.016,-0.116,0.045,-0.135,0.077,-0.139,0.071,-0.148,0.071,-0.168,0.077,-0.168,0.081,-0.177,0.148,-0.174,0.148,-0.181,-0.142,-0.181,-0.158,-0.184,-0.161,-0.19,-0.177,-0.165,-0.19,-0.158,-0.2,-0.132,-0.213,-0.132,-0.223,-0.116,-0.229,-0.116,-0.258,-0.084,-0.268,-0.084,-0.271,-0.071,-0.271,-0.055,-0.265,-0.055,-0.252,-0.035,-0.232,-0.035,-0.213,-0.026,-0.174,-0.019,-0.165,-0.01,-0.165,0.016,-0.232,0.023,-0.252,0.032,-0.297,0.032,-0.335,0.019,-0.345,0.006,-0.358,0.006,-0.368,-0.003,-0.381,-0.003,-0.384,-0.013,-0.39,-0.013,-0.403,-0.032,-0.413,-0.035,-0.413,-0.048,-0.423,-0.052,-0.423,-0.061,-0.442,-0.071,-0.442,-0.081,-0.452,-0.081,-0.452,-0.09,-0.461,-0.094,-0.461,-0.113,-0.455,-0.113,-0.452,-0.126,-0.439,-0.126,-0.429,-0.145,-0.419,-0.148,-0.403,-0.171,-0.394,-0.203,-0.394,-0.239,-0.413,-0.277,-0.419,-0.326,-0.455,-0.323,-0.468,-0.313,-0.481,-0.313,-0.532,-0.268,-0.545,-0.265,-0.552,-0.255,-0.565,-0.255,-0.597,-0.229,-0.619,-0.226,-0.629,-0.216,-0.645,-0.216,-0.703,-0.187,-0.755,-0.187,-0.816,-0.171,-0.865,-0.171,-0.887,-0.181,-0.894,-0.19,-0.932,-0.197,-0.935,-0.216,-0.923,-0.235,-0.897,-0.245,-0.855,-0.245,-0.839,-0.242,-0.835,-0.235,-0.79,-0.235,-0.745,-0.239,-0.735,-0.248,-0.719,-0.248,-0.71,-0.258,-0.697,-0.258,-0.694,-0.265,-0.629,-0.294,-0.619,-0.306,-0.594,-0.31,-0.574,-0.326,-0.552,-0.329,-0.532,-0.345,-0.487,-0.365,-0.471,-0.384,-0.452,-0.387,-0.442,-0.403,-0.423,-0.416,-0.423,-0.423,-0.384,-0.439,-0.374,-0.448,-0.361,-0.448,-0.348,-0.465,-0.323,-0.474,-0.319,-0.481,-0.303,-0.481,-0.294,-0.49,-0.274,-0.49,-0.252,-0.5,-0.168,-0.503,-0.161,-0.497,-0.081,-0.49,-0.052,-0.477,-0.032,-0.477,-0.019,-0.468,0.019,-0.468,0.045,-0.458,0.219,-0.465,0.239,-0.471,0.355,-0.477,0.365,-0.487,0.387,-0.49,0.413,-0.51,0.432,-0.51,0.442,-0.519,0.5,-0.523,0.503,-0.532],[0.49,-0.613,0.513,-0.61,0.516,-0.571,0.571,-0.535,0.581,-0.471,0.6,-0.452,0.6,-0.423,0.594,-0.413,0.584,-0.413,0.584,-0.4,0.574,-0.4,0.535,-0.377,0.506,-0.377,0.49,-0.387,0.452,-0.39,0.445,-0.397,0.413,-0.403,0.377,-0.4,0.374,-0.394,0.352,-0.387,0.348,-0.374,0.339,-0.371,0.306,-0.335,0.326,-0.319,0.326,-0.277,0.31,-0.255,0.31,-0.239,0.29,-0.229,0.29,-0.216,0.284,-0.216,0.271,-0.187,0.245,-0.168,0.242,-0.158,0.223,-0.158,0.213,-0.148,0.197,-0.145,0.174,-0.145,0.165,-0.155,0.165,-0.187,0.171,-0.2,0.184,-0.21,0.203,-0.213,0.235,-0.245,0.235,-0.252,0.223,-0.261,0.177,-0.274,0.177,-0.268,0.161,-0.255,0.148,-0.255,0.142,-0.245,0.126,-0.245,0.113,-0.235,0.097,-0.235,0.068,-0.216,-0.026,-0.206,-0.032,-0.2,-0.148,-0.194,-0.161,-0.187,-0.226,-0.181,-0.335,-0.177,-0.342,-0.165,-0.352,-0.165,-0.352,-0.158,-0.374,-0.148,-0.394,-0.129,-0.416,-0.129,-0.429,-0.119,-0.455,-0.119,-0.461,-0.11,-0.506,-0.1,-0.584,-0.103,-0.587,-0.087,-0.581,-0.071,-0.574,-0.071,-0.568,-0.058,-0.545,-0.042,-0.513,-0.039,-0.513,-0.013,-0.516,-0.006,-0.535,-0.003,-0.597,0.0,-0.645,-0.013,-0.674,-0.052,-0.674,-0.068,-0.684,-0.081,-0.684,-0.094,-0.69,-0.097,-0.7,-0.184,-0.681,-0.206,-0.674,-0.206,-0.674,-0.213,-0.626,-0.226,-0.61,-0.245,-0.594,-0.248,-0.581,-0.265,-0.574,-0.265,-0.574,-0.297,-0.568,-0.306,-0.574,-0.319,-0.603,-0.31,-0.606,-0.3,-0.613,-0.3,-0.616,-0.29,-0.626,-0.29,-0.626,-0.284,-0.639,-0.274,-0.658,-0.271,-0.661,-0.265,-0.726,-0.232,-0.739,-0.232,-0.761,-0.219,-0.761,-0.213,-0.777,-0.213,-0.794,-0.203,-0.816,-0.203,-0.842,-0.184,-0.868,-0.184,-0.877,-0.177,-0.977,-0.177,-0.99,-0.187,-1.016,-0.19,-1.019,-0.216,-1.013,-0.216,-1.013,-0.226,-0.929,-0.245,-0.832,-0.248,-0.784,-0.274,-0.771,-0.274,-0.752,-0.29,-0.719,-0.303,-0.7,-0.323,-0.677,-0.326,-0.658,-0.348,-0.632,-0.358,-0.613,-0.377,-0.581,-0.394,-0.561,-0.419,-0.529,-0.429,-0.49,-0.458,-0.439,-0.471,-0.435,-0.477,-0.419,-0.481,-0.419,-0.487,-0.265,-0.49,-0.261,-0.484,-0.232,-0.484,-0.197,-0.474,-0.023,-0.468,0.003,-0.474,0.023,-0.487,0.035,-0.487,0.071,-0.506,0.097,-0.506,0.106,-0.516,0.119,-0.516,0.123,-0.523,0.171,-0.542,0.252,-0.545,0.258,-0.552,0.3,-0.555,0.306,-0.561,0.345,-0.565,0.365,-0.574,0.394,-0.574,0.397,-0.581,0.423,-0.59,0.458,-0.59,0.468,-0.603,0.474,-0.603,0.474,-0.61],[0.503,-0.613,0.535,-0.613,0.535,-0.597,0.529,-0.594,0.532,-0.568,0.555,-0.558,0.558,-0.548,0.577,-0.542,0.59,-0.519,0.597,-0.519,0.606,-0.487,0.606,-0.461,0.626,-0.442,0.626,-0.416,0.594,-0.394,0.581,-0.374,0.506,-0.381,0.494,-0.39,0.452,-0.39,0.429,-0.4,0.39,-0.4,0.355,-0.387,0.348,-0.374,0.371,-0.365,0.384,-0.342,0.397,-0.335,0.397,-0.319,0.403,-0.313,0.403,-0.265,0.397,-0.242,0.377,-0.232,0.374,-0.203,0.361,-0.2,0.342,-0.177,0.306,-0.177,0.3,-0.187,0.29,-0.187,0.29,-0.21,0.316,-0.235,0.316,-0.242,0.323,-0.242,0.323,-0.255,0.313,-0.255,0.31,-0.265,0.3,-0.265,0.281,-0.284,0.245,-0.3,0.232,-0.313,0.21,-0.313,0.203,-0.303,0.174,-0.294,0.135,-0.261,0.068,-0.245,0.058,-0.235,-0.039,-0.223,-0.071,-0.213,-0.132,-0.21,-0.155,-0.219,-0.197,-0.223,-0.203,-0.229,-0.323,-0.239,-0.371,-0.239,-0.423,-0.226,-0.468,-0.226,-0.474,-0.219,-0.497,-0.216,-0.497,-0.21,-0.506,-0.21,-0.516,-0.197,-0.526,-0.197,-0.548,-0.177,-0.565,-0.177,-0.574,-0.168,-0.597,-0.165,-0.616,-0.148,-0.635,-0.148,-0.677,-0.129,-0.729,-0.126,-0.748,-0.11,-0.758,-0.11,-0.765,-0.094,-0.774,-0.087,-0.777,-0.071,-0.787,-0.068,-0.787,-0.055,-0.797,-0.048,-0.803,-0.032,-0.803,-0.023,-0.797,-0.023,-0.787,-0.01,-0.787,0.023,-0.832,0.023,-0.835,0.013,-0.845,0.01,-0.845,-0.042,-0.865,-0.026,-0.877,0.019,-0.913,0.019,-0.916,0.013,-0.923,0.006,-0.919,-0.032,-0.913,-0.035,-0.9,-0.071,-0.881,-0.097,-0.852,-0.119,-0.839,-0.142,-0.813,-0.158,-0.813,-0.168,-0.787,-0.194,-0.745,-0.216,-0.745,-0.226,-0.706,-0.258,-0.684,-0.29,-0.665,-0.303,-0.661,-0.316,-0.713,-0.29,-0.739,-0.261,-0.761,-0.255,-0.787,-0.232,-0.813,-0.223,-0.832,-0.206,-0.842,-0.206,-0.852,-0.194,-0.858,-0.194,-0.858,-0.187,-0.894,-0.177,-0.9,-0.168,-0.971,-0.161,-0.974,-0.171,-0.99,-0.171,-0.987,-0.21,-0.952,-0.229,-0.919,-0.232,-0.903,-0.245,-0.877,-0.248,-0.868,-0.261,-0.842,-0.274,-0.835,-0.287,-0.813,-0.297,-0.813,-0.303,-0.806,-0.303,-0.79,-0.326,-0.755,-0.339,-0.752,-0.348,-0.726,-0.361,-0.719,-0.377,-0.694,-0.397,-0.69,-0.406,-0.648,-0.419,-0.632,-0.439,-0.6,-0.442,-0.597,-0.448,-0.565,-0.455,-0.497,-0.455,-0.461,-0.461,-0.287,-0.461,-0.258,-0.471,-0.197,-0.471,-0.187,-0.477,-0.119,-0.481,-0.058,-0.494,0.023,-0.5,0.023,-0.506,0.045,-0.51,0.052,-0.519,0.061,-0.519,0.065,-0.529,0.077,-0.529,0.1,-0.548,0.155,-0.548,0.219,-0.577,0.342,-0.574,0.39,-0.587,0.471,-0.594,0.477,-0.603],[0.523,-0.632,0.542,-0.632,0.542,-0.623,0.548,-0.619,0.548,-0.597,0.539,-0.581,0.587,-0.535,0.59,-0.519,0.597,-0.516,0.6,-0.474,0.606,-0.471,0.61,-0.455,0.623,-0.445,0.623,-0.406,0.613,-0.406,0.594,-0.384,0.561,-0.371,0.523,-0.371,0.474,-0.397,0.384,-0.4,0.377,-0.394,0.365,-0.394,0.416,-0.377,0.445,-0.355,0.461,-0.352,0.487,-0.323,0.49,-0.306,0.49,-0.277,0.477,-0.239,0.448,-0.219,0.435,-0.219,0.435,-0.213,0.429,-0.213,0.429,-0.2,0.419,-0.2,0.41,-0.174,0.39,-0.158,0.361,-0.155,0.352,-0.168,0.352,-0.2,0.358,-0.216,0.368,-0.223,0.368,-0.245,0.352,-0.245,0.342,-0.255,0.326,-0.255,0.316,-0.265,0.287,-0.268,0.284,-0.274,0.235,-0.277,0.216,-0.284,0.213,-0.29,0.19,-0.294,0.181,-0.303,0.145,-0.277,0.081,-0.268,0.032,-0.255,0.026,-0.248,-0.135,-0.248,-0.232,-0.274,-0.271,-0.277,-0.294,-0.287,-0.361,-0.287,-0.377,-0.277,-0.397,-0.277,-0.41,-0.268,-0.468,-0.258,-0.494,-0.245,-0.558,-0.239,-0.561,-0.232,-0.577,-0.229,-0.606,-0.229,-0.684,-0.2,-0.748,-0.197,-0.755,-0.19,-0.768,-0.19,-0.774,-0.181,-0.79,-0.177,-0.8,-0.165,-0.819,-0.161,-0.839,-0.135,-0.852,-0.132,-0.861,-0.116,-0.874,-0.113,-0.887,-0.097,-0.903,-0.094,-0.906,-0.084,-0.916,-0.084,-0.942,-0.068,-0.965,-0.068,-0.965,-0.094,-0.948,-0.123,-0.913,-0.152,-0.923,-0.155,-0.926,-0.148,-0.974,-0.142,-0.974,-0.168,-0.945,-0.2,-0.923,-0.21,-0.861,-0.258,-0.852,-0.258,-0.835,-0.277,-0.823,-0.277,-0.823,-0.284,-0.81,-0.287,-0.803,-0.297,-0.79,-0.303,-0.742,-0.303,-0.723,-0.326,-0.706,-0.332,-0.703,-0.342,-0.668,-0.365,-0.668,-0.371,-0.658,-0.371,-0.658,-0.377,-0.642,-0.384,-0.639,-0.397,-0.61,-0.419,-0.658,-0.41,-0.69,-0.394,-0.703,-0.381,-0.719,-0.381,-0.755,-0.368,-0.768,-0.355,-0.823,-0.332,-0.839,-0.313,-0.845,-0.313,-0.848,-0.303,-0.874,-0.294,-0.877,-0.284,-0.887,-0.284,-0.919,-0.255,-0.965,-0.252,-0.977,-0.258,-0.974,-0.284,-0.968,-0.287,-0.968,-0.3,-0.955,-0.319,-0.929,-0.339,-0.916,-0.358,-0.884,-0.371,-0.871,-0.384,-0.835,-0.394,-0.829,-0.403,-0.816,-0.403,-0.781,-0.419,-0.742,-0.426,-0.716,-0.442,-0.716,-0.448,-0.674,-0.461,-0.648,-0.481,-0.629,-0.481,-0.623,-0.49,-0.565,-0.506,-0.465,-0.506,-0.445,-0.513,-0.406,-0.513,-0.387,-0.506,-0.2,-0.503,-0.032,-0.51,-0.01,-0.519,0.029,-0.519,0.052,-0.539,0.061,-0.539,0.129,-0.577,0.329,-0.577,0.348,-0.587,0.371,-0.587,0.426,-0.603,0.494,-0.603,0.494,-0.613],[0.516,-0.594,0.529,-0.594,0.545,-0.584,0.535,-0.545,0.539,-0.532,0.555,-0.519,0.565,-0.519,0.565,-0.513,0.577,-0.51,0.581,-0.5,0.59,-0.497,0.594,-0.481,0.603,-0.474,0.613,-0.429,0.626,-0.413,0.632,-0.413,0.632,-0.384,0.6,-0.355,0.587,-0.355,0.574,-0.345,0.529,-0.345,0.481,-0.368,0.387,-0.368,0.377,-0.365,0.355,-0.329,0.384,-0.319,0.458,-0.316,0.471,-0.306,0.487,-0.306,0.503,-0.297,0.571,-0.281,0.603,-0.258,0.603,-0.248,0.613,-0.239,0.613,-0.219,0.606,-0.203,0.597,-0.197,0.548,-0.197,0.548,-0.203,0.535,-0.206,0.529,-0.216,0.494,-0.216,0.516,-0.184,0.516,-0.142,0.51,-0.139,0.506,-0.123,0.465,-0.123,0.461,-0.132,0.452,-0.135,0.435,-0.174,0.403,-0.194,0.374,-0.2,0.297,-0.2,0.265,-0.213,0.235,-0.216,0.226,-0.226,0.213,-0.226,0.174,-0.245,0.168,-0.268,0.048,-0.242,-0.026,-0.235,-0.168,-0.235,-0.261,-0.265,-0.345,-0.271,-0.416,-0.268,-0.465,-0.245,-0.555,-0.223,-0.574,-0.223,-0.581,-0.216,-0.723,-0.216,-0.729,-0.206,-0.739,-0.206,-0.739,-0.2,-0.748,-0.197,-0.761,-0.177,-0.771,-0.174,-0.794,-0.135,-0.819,-0.119,-0.829,-0.119,-0.829,-0.113,-0.845,-0.1,-0.868,-0.094,-0.887,-0.094,-0.916,-0.106,-0.919,-0.132,-0.91,-0.142,-0.9,-0.142,-0.894,-0.152,-0.877,-0.155,-0.871,-0.171,-0.861,-0.171,-0.845,-0.197,-0.903,-0.171,-0.961,-0.171,-0.968,-0.194,-0.958,-0.21,-0.948,-0.21,-0.942,-0.219,-0.874,-0.248,-0.868,-0.258,-0.832,-0.277,-0.819,-0.297,-0.797,-0.306,-0.797,-0.313,-0.787,-0.313,-0.768,-0.326,-0.703,-0.329,-0.671,-0.358,-0.629,-0.384,-0.623,-0.397,-0.6,-0.413,-0.6,-0.419,-0.623,-0.419,-0.671,-0.4,-0.687,-0.4,-0.7,-0.39,-0.735,-0.384,-0.842,-0.342,-0.89,-0.332,-0.897,-0.323,-0.91,-0.323,-0.913,-0.316,-0.932,-0.313,-0.939,-0.303,-0.955,-0.303,-0.968,-0.294,-1.003,-0.297,-1.0,-0.326,-0.99,-0.329,-0.99,-0.342,-0.968,-0.365,-0.961,-0.365,-0.961,-0.374,-0.955,-0.377,-0.894,-0.384,-0.887,-0.394,-0.877,-0.394,-0.852,-0.413,-0.826,-0.419,-0.806,-0.432,-0.79,-0.432,-0.777,-0.442,-0.726,-0.452,-0.703,-0.468,-0.681,-0.471,-0.648,-0.494,-0.584,-0.503,-0.577,-0.51,-0.552,-0.51,-0.532,-0.519,-0.316,-0.532,-0.094,-0.529,-0.071,-0.519,0.058,-0.519,0.074,-0.529,0.116,-0.539,0.129,-0.548,0.155,-0.552,0.248,-0.555,0.287,-0.545,0.345,-0.545,0.384,-0.552,0.387,-0.558,0.416,-0.565,0.481,-0.565],[-0.287,-0.545,-0.213,-0.545,-0.203,-0.539,-0.152,-0.535,-0.097,-0.519,-0.087,-0.51,0.019,-0.49,0.103,-0.494,0.139,-0.506,0.177,-0.51,0.258,-0.51,0.29,-0.5,0.342,-0.5,0.384,-0.516,0.477,-0.516,0.494,-0.535,0.523,-0.535,0.516,-0.487,0.571,-0.442,0.581,-0.416,0.581,-0.387,0.606,-0.361,0.61,-0.332,0.581,-0.306,0.555,-0.297,0.519,-0.297,0.516,-0.303,0.503,-0.303,0.49,-0.313,0.442,-0.313,0.429,-0.326,0.406,-0.329,0.371,-0.3,0.371,-0.265,0.377,-0.265,0.377,-0.258,0.406,-0.255,0.406,-0.248,0.416,-0.248,0.419,-0.242,0.461,-0.223,0.484,-0.219,0.484,-0.213,0.519,-0.206,0.532,-0.194,0.6,-0.181,0.619,-0.165,0.619,-0.155,0.632,-0.139,0.629,-0.113,0.565,-0.123,0.558,-0.103,0.513,-0.103,0.506,-0.116,0.487,-0.129,0.487,-0.139,0.442,-0.139,0.435,-0.145,0.377,-0.152,0.3,-0.152,0.255,-0.161,0.255,-0.168,0.242,-0.168,0.239,-0.177,0.216,-0.187,0.216,-0.194,0.2,-0.203,0.171,-0.239,0.139,-0.229,0.129,-0.219,-0.087,-0.213,-0.126,-0.216,-0.145,-0.226,-0.171,-0.226,-0.206,-0.235,-0.21,-0.245,-0.229,-0.248,-0.242,-0.265,-0.261,-0.271,-0.306,-0.287,-0.358,-0.287,-0.358,-0.281,-0.374,-0.268,-0.39,-0.268,-0.39,-0.261,-0.406,-0.258,-0.413,-0.248,-0.432,-0.245,-0.452,-0.229,-0.468,-0.229,-0.477,-0.219,-0.503,-0.216,-0.606,-0.216,-0.623,-0.226,-0.661,-0.226,-0.69,-0.235,-0.69,-0.229,-0.703,-0.226,-0.71,-0.21,-0.716,-0.21,-0.719,-0.197,-0.726,-0.194,-0.729,-0.165,-0.735,-0.165,-0.735,-0.155,-0.758,-0.119,-0.768,-0.116,-0.768,-0.11,-0.787,-0.094,-0.81,-0.09,-0.813,-0.132,-0.842,-0.126,-0.861,-0.139,-0.861,-0.158,-0.852,-0.168,-0.852,-0.177,-0.839,-0.187,-0.819,-0.187,-0.81,-0.194,-0.81,-0.206,-0.784,-0.242,-0.771,-0.268,-0.771,-0.281,-0.765,-0.284,-0.742,-0.332,-0.726,-0.332,-0.719,-0.339,-0.648,-0.335,-0.61,-0.365,-0.606,-0.374,-0.597,-0.377,-0.597,-0.384,-0.587,-0.387,-0.568,-0.41,-0.568,-0.419,-0.558,-0.429,-0.565,-0.439,-0.635,-0.423,-0.642,-0.413,-0.671,-0.403,-0.69,-0.387,-0.716,-0.384,-0.726,-0.374,-0.761,-0.365,-0.777,-0.348,-0.826,-0.335,-0.835,-0.326,-0.871,-0.319,-0.903,-0.297,-0.913,-0.297,-0.919,-0.287,-0.929,-0.287,-0.935,-0.277,-0.948,-0.277,-0.961,-0.265,-1.006,-0.255,-1.006,-0.274,-0.994,-0.284,-0.984,-0.313,-0.965,-0.319,-0.955,-0.335,-0.942,-0.339,-0.903,-0.381,-0.894,-0.381,-0.881,-0.394,-0.832,-0.4,-0.829,-0.406,-0.813,-0.41,-0.81,-0.416,-0.8,-0.416,-0.781,-0.429,-0.768,-0.429,-0.758,-0.439,-0.723,-0.448,-0.71,-0.458,-0.697,-0.458,-0.677,-0.474,-0.648,-0.477,-0.635,-0.487,-0.577,-0.487,-0.571,-0.494,-0.542,-0.497,-0.503,-0.513,-0.455,-0.519,-0.442,-0.529,-0.403,-0.529,-0.368,-0.539],[-0.419,-0.568,-0.219,-0.552,-0.21,-0.548,-0.21,-0.542,-0.19,-0.542,-0.181,-0.532,-0.139,-0.523,-0.132,-0.513,-0.045,-0.49,0.042,-0.5,0.129,-0.5,0.187,-0.494,0.197,-0.487,0.239,-0.487,0.265,-0.497,0.323,-0.5,0.371,-0.513,0.432,-0.516,0.452,-0.532,0.49,-0.532,0.49,-0.513,0.481,-0.49,0.513,-0.468,0.516,-0.458,0.523,-0.458,0.523,-0.448,0.542,-0.435,0.548,-0.423,0.548,-0.397,0.568,-0.365,0.568,-0.332,0.561,-0.332,0.561,-0.326,0.545,-0.313,0.535,-0.313,0.535,-0.303,0.503,-0.29,0.474,-0.29,0.41,-0.319,0.371,-0.323,0.365,-0.313,0.352,-0.31,0.352,-0.303,0.342,-0.303,0.335,-0.258,0.348,-0.239,0.374,-0.232,0.377,-0.226,0.458,-0.21,0.474,-0.197,0.484,-0.197,0.49,-0.187,0.548,-0.174,0.552,-0.168,0.565,-0.168,0.581,-0.158,0.597,-0.135,0.597,-0.106,0.539,-0.106,0.535,-0.113,0.519,-0.116,0.519,-0.123,0.503,-0.135,0.477,-0.139,0.471,-0.145,0.419,-0.145,0.419,-0.139,0.439,-0.132,0.439,-0.126,0.458,-0.116,0.468,-0.103,0.487,-0.097,0.503,-0.077,0.516,-0.077,0.561,-0.058,0.6,-0.055,0.603,-0.039,0.61,-0.039,0.61,-0.01,0.6,0.0,0.516,-0.003,0.494,-0.023,0.474,-0.026,0.435,-0.052,0.387,-0.071,0.303,-0.135,0.284,-0.139,0.281,-0.145,0.271,-0.145,0.252,-0.158,0.252,-0.165,0.239,-0.168,0.223,-0.187,0.216,-0.187,0.213,-0.197,0.203,-0.197,0.2,-0.206,0.187,-0.21,0.168,-0.226,0.148,-0.226,0.126,-0.235,-0.116,-0.239,-0.194,-0.258,-0.216,-0.255,-0.235,-0.268,-0.245,-0.268,-0.248,-0.274,-0.271,-0.277,-0.274,-0.284,-0.345,-0.29,-0.368,-0.281,-0.371,-0.271,-0.387,-0.265,-0.397,-0.252,-0.406,-0.252,-0.406,-0.245,-0.474,-0.229,-0.574,-0.235,-0.581,-0.252,-0.61,-0.261,-0.623,-0.252,-0.629,-0.171,-0.639,-0.155,-0.648,-0.155,-0.648,-0.148,-0.668,-0.145,-0.69,-0.129,-0.703,-0.129,-0.706,-0.168,-0.7,-0.187,-0.687,-0.197,-0.694,-0.316,-0.684,-0.352,-0.661,-0.371,-0.616,-0.371,-0.594,-0.387,-0.581,-0.442,-0.61,-0.435,-0.652,-0.41,-0.713,-0.387,-0.748,-0.358,-0.774,-0.348,-0.777,-0.339,-0.787,-0.339,-0.803,-0.319,-0.813,-0.319,-0.832,-0.3,-0.842,-0.3,-0.842,-0.294,-0.855,-0.29,-0.858,-0.281,-0.89,-0.268,-0.9,-0.258,-0.916,-0.252,-0.984,-0.255,-0.984,-0.277,-0.971,-0.3,-0.939,-0.323,-0.935,-0.332,-0.916,-0.342,-0.916,-0.348,-0.813,-0.39,-0.79,-0.41,-0.771,-0.416,-0.719,-0.465,-0.69,-0.477,-0.69,-0.484,-0.674,-0.487,-0.668,-0.497,-0.655,-0.497,-0.655,-0.503,-0.642,-0.506,-0.639,-0.513,-0.619,-0.516,-0.577,-0.542,-0.548,-0.548,-0.545,-0.555]];
+  var cats = null, lastT = null;
+  var VRUN = 4.6, ACC = 9, STRIDE = 1.4;
+  function catsReset() {
+    var k = S.cats;
+    cats = [
+      { x: k.xs, v: VRUN, phase: 0, s: 1, delay: 0 },
+      { x: k.xs - 0.8 * k.L, v: VRUN, phase: 0.45, s: 0.86, delay: 0.55 }
+    ];
+    lastT = null;
+  }
+  // both cats simply run across the deck, the second a few strides behind
+  function stepCats(T) {
+    if (!cats) catsReset();
+    var dt = lastT === null ? 0 : clamp(T - lastT, 0, 0.05); lastT = T;
+    cats.forEach(function (c) {
+      if (T - 1.2 < c.delay) return;
+      c.x += c.v * S.cats.L * c.s * dt;
+      c.phase = (c.phase + c.v * dt / STRIDE) % 1;
+    });
+  }
+  function drawRun(c, cat, gy, L, alpha) {
+    var fi = Math.floor(cat.phase * RUN.length) % RUN.length, f = RUN[fi], air = fi >= 6 && fi <= 8 ? 1 : 0;
+    c.save(); c.translate(cat.x, gy); c.scale(L * cat.s, L * cat.s); c.globalAlpha = alpha;
+    c.fillStyle = "rgba(0,0,0," + (0.28 - air * 0.12) + ")";
+    c.beginPath(); c.ellipse(0.02, 0.01, 0.42 - air * 0.12, 0.035, 0, 0, 6.29); c.fill();
+    c.fillStyle = "#060807"; c.beginPath(); c.moveTo(f[0], f[1]);
+    for (var i = 2; i < f.length; i += 2) c.lineTo(f[i], f[i + 1]);
+    c.closePath(); c.fill();
+    c.restore();
+  }
+  function paintCats(c, T) {
+    var k = S.cats;
+    if (reduce) { // a still frame: mid-stride on the deck
+      if (!cats) catsReset();
+      cats[0].x = k.a2; cats[0].phase = 0.75; cats[1].x = k.a2 - 3 * k.L; cats[1].phase = 0.35;
+    } else stepCats(T);
+    for (var i = 1; i >= 0; i--) {
+      var cat = cats[i];
+      if (T - 1.2 < cat.delay && !reduce) continue;
+      var alpha = clamp((k.door - cat.x) / (1.5 * k.L), 0, 1);
+      if (alpha > 0) drawRun(c, cat, k.y, k.L, alpha);
+    }
+  }
+
+  /* ---------------- the mantas ---------------- */
+  function drawManta(c, x, y, span, ang, flap, alpha) {
+    c.save(); c.translate(x, y); c.rotate(ang + Math.PI / 2); c.scale(span, span);
+    var fw = Math.sin(flap) * 0.07, tip = 0.5 * (1 - Math.abs(Math.sin(flap)) * 0.06);
+    c.fillStyle = "rgba(150,160,156," + alpha + ")";
+    c.beginPath(); c.moveTo(0, -0.2);
+    c.lineTo(0.05, -0.27); c.lineTo(0.08, -0.18);
+    c.quadraticCurveTo(0.3, -0.17 + fw * 0.3, tip, -0.02 + fw);
+    c.quadraticCurveTo(0.25, 0.04, 0.09, 0.16); c.lineTo(0, 0.2); c.lineTo(-0.09, 0.16);
+    c.quadraticCurveTo(-0.25, 0.04, -tip, -0.02 + fw);
+    c.quadraticCurveTo(-0.3, -0.17 + fw * 0.3, -0.08, -0.18);
+    c.lineTo(-0.05, -0.27); c.closePath(); c.fill();
+    c.fillStyle = "rgba(96,104,101," + alpha * 0.6 + ")"; c.beginPath(); c.ellipse(0, -0.01, 0.07, 0.16, 0, 0, 6.29); c.fill();
+    c.strokeStyle = "rgba(150,160,156," + alpha + ")"; c.lineWidth = 0.008;
+    c.beginPath(); c.moveTo(0, 0.2); c.quadraticCurveTo(0.02 + fw * 0.2, 0.4, 0, 0.62); c.stroke();
+    c.restore();
+  }
+  function mantaPos(tj, j) {
+    var e = smooth(tj), s = S;
+    var X = lerp(-1.5 + j * 0.4, -0.25 + j * 0.2, e) + 0.06 * Math.sin(tj * 5 + j * 2), Y = lerp(-1.0 - j * 0.12, -1.3, e), Z = lerp(1.8 + j * 0.35, 24, Math.pow(e, 1.4));
+    return { p: s.P(X, Y, Z), Z: Z };
+  }
+  function paintMantas(c, now) {
+    if (mantaAt === null) return;
+    var any = false;
+    for (var j = 0; j < 2; j++) {
+      var tj = (now - mantaAt - j * 1.7) / MANTA_D;
+      if (tj < 0) { any = true; continue; }
+      if (tj > 1) continue;
+      any = true;
+      var a = mantaPos(tj, j), b = mantaPos(Math.min(1, tj + 0.01), j);
+      var span = (j ? 0.46 : 0.56) * S.f / a.Z, ang = Math.atan2(b.p[1] - a.p[1], b.p[0] - a.p[0]);
+      var alpha = 0.78 * clamp(1 - Math.log(a.Z / 2) / Math.log(12), 0, 1) * clamp(tj * 10, 0, 1);
+      drawManta(c, a.p[0], a.p[1], span, ang, now * 1.05 + j * 1.3, alpha);
+    }
+    if (!any) { mantaAt = null; nextManta = now + 70 + Math.random() * 70; }
+  }
+
+  /* ---------------- per-frame layer ---------------- */
+  function paintLive(c, T, time) {
+    var s = S, sway = reduce ? 0 : 1;
+    s.glows.forEach(function (g) {
+      if (g.thr > growth || T < 2) return;
+      var a = (0.22 + 0.12 * Math.sin(time * 0.7 + g.ph) * sway) * clamp((T - 2) / 2, 0, 1);
+      var gr = c.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.rad); gr.addColorStop(0, "rgba(191,232,222," + a + ")"); gr.addColorStop(1, "rgba(191,232,222,0)");
+      c.fillStyle = gr; c.fillRect(g.x - g.rad, g.y - g.rad, g.rad * 2, g.rad * 2);
+    });
+    if (!reduce) paintMantas(c, time);
+    paintCats(c, T);
+    var f1 = c.createLinearGradient(0, H, 0, H * 0.42); f1.addColorStop(0, "rgba(13,16,15,0.94)"); f1.addColorStop(1, "rgba(13,16,15,0)");
+    c.fillStyle = f1; c.fillRect(0, 0, W, H);
+    var f2 = c.createLinearGradient(0, 0, W * 0.6, 0); f2.addColorStop(0, "rgba(13,16,15,0.4)"); f2.addColorStop(1, "rgba(13,16,15,0)");
+    c.fillStyle = f2; c.fillRect(0, H * 0.4, W, H);
+    s.motes.forEach(function (m) {
+      if (m.thr > Math.max(0.15, growth + 0.1)) return;
+      var y = reduce ? m.y : ((m.y - time * m.sp) % H + H) % H, x = m.x + (reduce ? 0 : Math.sin(time * 0.35 + m.ph) * 10);
+      var a = (reduce ? 0.5 : 0.35 + 0.35 * Math.sin(time * (m.brass ? 1.6 : 0.6) + m.ph)) * clamp((T - 1) / 3, 0, 1);
+      var col = m.brass ? "201,162,83" : "191,232,222";
+      var gr = c.createRadialGradient(x, y, 0, x, y, m.rad * 5); gr.addColorStop(0, "rgba(" + col + "," + a * 0.5 + ")"); gr.addColorStop(1, "rgba(" + col + ",0)");
+      c.fillStyle = gr; c.fillRect(x - m.rad * 5, y - m.rad * 5, m.rad * 10, m.rad * 10);
+      c.fillStyle = "rgba(" + col + "," + a + ")"; c.beginPath(); c.arc(x, y, m.rad * 0.6, 0, 6.29); c.fill();
+    });
+  }
+
+  /* ---------------- loop ---------------- */
+  function draw(T, time) {
+    if (!vegCached) {
+      vctx.setTransform(1, 0, 0, 1, 0, 0); vctx.clearRect(0, 0, veg.width, veg.height); vctx.drawImage(arch, 0, 0);
+      vctx.setTransform(DPR, 0, 0, DPR, 0, 0); paintNature(vctx, T);
+      vctx.fillStyle = vctx.createPattern(grain, "repeat"); vctx.fillRect(0, 0, W, H);
+      if (T > S.tVeg) vegCached = true;
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(veg, 0, 0);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); paintLive(ctx, T, time);
+  }
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight; if (!W || !H) return;
+    cv.width = arch.width = veg.width = W * DPR; cv.height = arch.height = veg.height = H * DPR;
+    build(); paintArch(); vegCached = false;
+    if (reduce) draw(1e6, 0);
+  }
+  function loop(now) {
+    var sec = now / 1000;
+    if (start === null) start = now;
+    if (nextManta === null) nextManta = sec + 25 + Math.random() * 25;
+    if (mantaAt === null && sec >= nextManta) mantaAt = sec;
+    draw((now - start) / 1000, sec);
+    requestAnimationFrame(loop);
+  }
+
+  var names = [[0, "béton nu"], [20, "mousses"], [45, "colonies"], [70, "forêt"], [90, "Yakushima"]];
+  slider.addEventListener("input", function () {
+    var v = +slider.value, n = names[0][1];
+    names.forEach(function (p) { if (v >= p[0]) n = p[1]; });
+    out.textContent = v + " % · " + n;
+    growth = v / 100; vegCached = false;
+    if (reduce) draw(1e6, 0);
+  });
+  replay.addEventListener("click", function () { start = null; vegCached = false; cats = null; if (reduce) draw(1e6, 0); });
+  var motionBtn = document.getElementById("motion");
+  if (reduce) motionBtn.hidden = false;
+  motionBtn.addEventListener("click", function () { reduce = false; motionBtn.hidden = true; start = null; vegCached = false; cats = null; requestAnimationFrame(loop); });
+  mantaBtn.addEventListener("click", function () { if (!reduce) mantaAt = performance.now() / 1000; });
+
+  grain = makeGrain();
+  resize();
+  if ("ResizeObserver" in window) new ResizeObserver(function () { resize(); }).observe(cv);
+  if (!reduce) requestAnimationFrame(loop);
+})();
+</script>

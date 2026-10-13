@@ -9,8 +9,7 @@ export type Dictionary = {
     skills: string;
     offline: string;
     contact: string;
-    switchTo: string;
-    switchLabel: string;
+    languages: string;
   };
   hero: {
     eyebrow: string;
@@ -35,8 +34,12 @@ export type Dictionary = {
       org: string;
       place: string;
       date: string;
-      note: string;
-      points: string[];
+      context: string;
+      missionsTitle: string;
+      missions: { label: string; text: string }[];
+      takeawaysTitle: string;
+      takeaways: string[];
+      tags: string[];
     };
     educationTitle: string;
     education: {
@@ -44,10 +47,12 @@ export type Dictionary = {
       school: string;
       place: string;
       date: string;
-      points: string[];
+      summary: string;
+      modulesTitle: string;
+      modules: { label: string; items: string[] }[];
+      certification: { label: string; name: string; detail: string };
+      tags: string[];
     };
-    certificationTitle: string;
-    certification: { name: string; detail: string };
   };
   projects: {
     strata: string;
@@ -84,5 +89,6 @@ export type Dictionary = {
     intro: string;
     links: { label: string; value: string; href: string }[];
   };
+  depths: { hero: string; clouds: string; forest: string };
   footer: string;
 };

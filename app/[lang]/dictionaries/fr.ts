@@ -14,8 +14,7 @@ const fr: Dictionary = {
     skills: "Compétences",
     offline: "Hors-ligne",
     contact: "Contact",
-    switchTo: "EN",
-    switchLabel: "Read in English",
+    languages: "Langue",
   },
   hero: {
     eyebrow: "Basé à Nice · Ouvert aux opportunités",
@@ -36,7 +35,7 @@ const fr: Dictionary = {
     profileTitle: "Profil",
     profile: [
       "INTP-T — l'architecte logique, toujours en train de déconstruire",
-      "Langues : français, anglais courant",
+      "Langues : français, anglais courant, chinois et japonais (débutant)",
       "Mode de fonctionnement : comprendre → construire → améliorer (kaizen)",
     ],
   },
@@ -49,30 +48,39 @@ const fr: Dictionary = {
       org: "Green B",
       place: "Valbonne",
       date: "2024",
-      note: "Opérateur télécom (entreprise aujourd'hui fermée)",
-      points: [
-        "Maintien en condition opérationnelle des serveurs de production",
-        "Administration et configuration des équipements réseau Draytek",
-        "Infrastructure as Code sur Azure pour automatiser et superviser le déploiement de ressources",
+      context:
+        "Opérateur télécom installé à Sophia Antipolis, aujourd'hui fermé. J'y ai tenu un poste à la jonction de trois mondes : les serveurs de production, le réseau physique et le cloud Azure.",
+      missionsTitle: "Missions",
+      missions: [
+        { label: "Production", text: "Maintien en condition opérationnelle des serveurs de production : garder en service ce qui ne doit pas s'arrêter." },
+        { label: "Réseau", text: "Administration et configuration du parc d'équipements réseau Draytek." },
+        { label: "Cloud", text: "Infrastructure as Code sur Azure pour automatiser et superviser le déploiement des ressources." },
       ],
+      takeawaysTitle: "Ce que j'en retire",
+      takeaways: [
+        "La rigueur qu'impose une production : chaque intervention compte.",
+        "Le lien concret entre le matériel réseau et le cloud.",
+        "Le réflexe d'automatiser ce qui doit être fiable et reproductible.",
+      ],
+      tags: ["Production", "Draytek", "Azure", "Infrastructure as Code", "Supervision"],
     },
     educationTitle: "Formation",
     education: {
       title: "Titre professionnel Administrateur systèmes & réseaux — cloud, hybride et on-premise",
-      school: "Simplon SUD (École Microsoft by Simplon)",
+      school: "Simplon SUD · École Microsoft by Simplon",
       place: "Nice",
       date: "2023 – 2024",
-      points: [
-        "Administration et sécurisation d'un réseau d'entreprise",
-        "Scripting et automatisation",
-        "Pare-feu et systèmes de filtrage",
-        "Authentification et autorisations (Active Directory)",
-        "Cryptographie",
-        "Virtualisation (VMware) et infrastructures on-premise, cloud et hybrides",
+      summary:
+        "Une formation professionnalisante portée par Microsoft et Simplon, centrée sur un objectif : concevoir, administrer et sécuriser l'infrastructure d'une entreprise, qu'elle soit dans ses murs, dans le cloud ou entre les deux.",
+      modulesTitle: "Programme",
+      modules: [
+        { label: "Réseau & sécurité", items: ["Administration et sécurisation d'un réseau d'entreprise", "Pare-feu et systèmes de filtrage", "Cryptographie"] },
+        { label: "Identités", items: ["Authentification et autorisations", "Active Directory"] },
+        { label: "Systèmes & cloud", items: ["Virtualisation (VMware)", "Infrastructures on-premise, cloud et hybrides", "Scripting et automatisation"] },
       ],
+      certification: { label: "Certification obtenue", name: "Microsoft SC-900", detail: "Security, Compliance & Identity Fundamentals" },
+      tags: ["Windows Server", "Linux", "Active Directory", "VMware", "Azure", "Sécurité"],
     },
-    certificationTitle: "Certification",
-    certification: { name: "Microsoft SC-900", detail: "Security, Compliance & Identity Fundamentals" },
   },
   projects: {
     strata: "03 / Constructions",
@@ -190,6 +198,7 @@ const fr: Dictionary = {
       { label: "start.gg", value: "Griffith", href: "https://www.start.gg/user/fc8a6021" },
     ],
   },
+  depths: { hero: "Le puits", clouds: "Mer de nuages", forest: "Forêt suspendue" },
   footer: "© 2026 Léo Azzopardi · leoazzopardi.org",
 };
 

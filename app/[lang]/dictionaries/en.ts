@@ -14,8 +14,7 @@ const en: Dictionary = {
     skills: "Skills",
     offline: "Offline",
     contact: "Contact",
-    switchTo: "FR",
-    switchLabel: "Lire en français",
+    languages: "Language",
   },
   hero: {
     eyebrow: "Based in Nice, France · Open to opportunities",
@@ -36,7 +35,7 @@ const en: Dictionary = {
     profileTitle: "Profile",
     profile: [
       "INTP-T — the logician, always taking things apart",
-      "Languages: French, fluent English",
+      "Languages: French, fluent English, beginner Chinese and Japanese",
       "Operating mode: understand → build → improve (kaizen)",
     ],
   },
@@ -49,30 +48,39 @@ const en: Dictionary = {
       org: "Green B",
       place: "Valbonne",
       date: "2024",
-      note: "Telecom operator (company since closed)",
-      points: [
-        "Kept production servers in operational condition",
-        "Administered and configured Draytek network equipment",
-        "Infrastructure as Code on Azure to automate and monitor resource deployment",
+      context:
+        "A telecom operator based in Sophia Antipolis, since closed. My role sat where three worlds meet: production servers, the physical network and the Azure cloud.",
+      missionsTitle: "What I did",
+      missions: [
+        { label: "Production", text: "Kept production servers in operational condition: keeping running what must not stop." },
+        { label: "Network", text: "Administered and configured the fleet of Draytek network equipment." },
+        { label: "Cloud", text: "Infrastructure as Code on Azure to automate and monitor resource deployment." },
       ],
+      takeawaysTitle: "What I took from it",
+      takeaways: [
+        "The rigor production demands: every intervention counts.",
+        "A hands-on link between network hardware and the cloud.",
+        "The reflex to automate whatever must be reliable and repeatable.",
+      ],
+      tags: ["Production", "Draytek", "Azure", "Infrastructure as Code", "Monitoring"],
     },
     educationTitle: "Education",
     education: {
       title: "French National Professional Certification — Systems & Network Administrator (cloud, hybrid and on-premise)",
-      school: "Simplon SUD (Microsoft School by Simplon)",
+      school: "Simplon SUD · Microsoft School by Simplon",
       place: "Nice",
       date: "2023 – 2024",
-      points: [
-        "Administering and securing an enterprise network",
-        "Scripting and automation",
-        "Firewalls and filtering systems",
-        "Authentication and authorization (Active Directory)",
-        "Cryptography",
-        "Virtualization (VMware) and on-premise, cloud and hybrid infrastructure",
+      summary:
+        "A career-focused program run by Microsoft and Simplon, built around one goal: designing, running and securing a company's infrastructure, whether it lives on site, in the cloud or across both.",
+      modulesTitle: "Curriculum",
+      modules: [
+        { label: "Networking & security", items: ["Administering and securing an enterprise network", "Firewalls and filtering systems", "Cryptography"] },
+        { label: "Identity", items: ["Authentication and authorization", "Active Directory"] },
+        { label: "Systems & cloud", items: ["Virtualization (VMware)", "On-premise, cloud and hybrid infrastructure", "Scripting and automation"] },
       ],
+      certification: { label: "Certification earned", name: "Microsoft SC-900", detail: "Security, Compliance & Identity Fundamentals" },
+      tags: ["Windows Server", "Linux", "Active Directory", "VMware", "Azure", "Security"],
     },
-    certificationTitle: "Certification",
-    certification: { name: "Microsoft SC-900", detail: "Security, Compliance & Identity Fundamentals" },
   },
   projects: {
     strata: "03 / Constructs",
@@ -190,6 +198,7 @@ const en: Dictionary = {
       { label: "start.gg", value: "Griffith", href: "https://www.start.gg/user/fc8a6021" },
     ],
   },
+  depths: { hero: "The shaft", clouds: "Sea of clouds", forest: "Hanging forest" },
   footer: "© 2026 Léo Azzopardi · leoazzopardi.org",
 };
 

@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
+import { DescentBand } from "@/components/descent/DescentBand";
 import { HeroScene } from "@/components/hero/HeroScene";
 import { Rich } from "@/components/Rich";
-import { getDictionary, hasLocale } from "./dictionaries";
+import { getDictionary, hasLocale, locales } from "./dictionaries";
+import { LOCALES } from "./locales";
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const d = await getDictionary(lang);
-  const other = lang === "fr" ? "en" : "fr";
 
   const nav = [
     ["about", d.nav.about],
@@ -31,15 +32,28 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             </a>
           ))}
         </nav>
-        <a className="lang" href={`/${other}/`} hrefLang={other} lang={other} aria-label={d.nav.switchLabel}>
-          <span aria-hidden="true">{lang.toUpperCase()} / </span>
-          <b>{d.nav.switchTo}</b>
-        </a>
+        <nav className="langs" aria-label={d.nav.languages}>
+          {locales.map((l) =>
+            l === lang ? (
+              <span key={l} aria-current="page" title={LOCALES[l].name}>
+                {LOCALES[l].label}
+              </span>
+            ) : (
+              <a key={l} href={`/${l}/`} hrefLang={LOCALES[l].hreflang} lang={LOCALES[l].htmlLang} title={LOCALES[l].name}>
+                {LOCALES[l].label}
+              </a>
+            ),
+          )}
+        </nav>
       </header>
 
       <main>
         <section className="hero" aria-labelledby="hero-name">
           <HeroScene />
+          <p className="depth hero-depth">
+            <b className="num">0 m</b>
+            <span>{d.depths.hero}</span>
+          </p>
           <div className="hero-text">
             <p className="strata">{d.hero.eyebrow}</p>
             <h1 id="hero-name">Léo Azzopardi</h1>
@@ -87,37 +101,77 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
           </header>
           <div className="timeline">
             <article className="entry">
-              <p className="kicker">{d.background.experienceTitle}</p>
-              <h3>{d.background.experience.role}</h3>
-              <p className="meta">
-                {d.background.experience.org} · {d.background.experience.place} · <span className="num">{d.background.experience.date}</span>
+              <p className="when-rail num" aria-hidden="true">
+                {d.background.experience.date}
               </p>
-              <p className="note">{d.background.experience.note}</p>
-              <ul>
-                {d.background.experience.points.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
+              <div className="entry-body">
+                <p className="kicker">{d.background.experienceTitle}</p>
+                <h3>{d.background.experience.role}</h3>
+                <p className="meta">
+                  {d.background.experience.org} · {d.background.experience.place} · <span className="num">{d.background.experience.date}</span>
+                </p>
+                <p className="context">{d.background.experience.context}</p>
+                <p className="kicker">{d.background.experience.missionsTitle}</p>
+                <ul className="missions">
+                  {d.background.experience.missions.map((m) => (
+                    <li key={m.label}>
+                      <span>{m.label}</span>
+                      {m.text}
+                    </li>
+                  ))}
+                </ul>
+                <p className="kicker">{d.background.experience.takeawaysTitle}</p>
+                <ul className="takeaways">
+                  {d.background.experience.takeaways.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+                <ul className="tags" aria-label="Technologies">
+                  {d.background.experience.tags.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </div>
             </article>
             <article className="entry">
-              <p className="kicker">{d.background.educationTitle}</p>
-              <h3>{d.background.education.title}</h3>
-              <p className="meta">
-                {d.background.education.school} · {d.background.education.place} · <span className="num">{d.background.education.date}</span>
+              <p className="when-rail num" aria-hidden="true">
+                {d.background.education.date}
               </p>
-              <ul>
-                {d.background.education.points.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
-            </article>
-            <article className="entry">
-              <p className="kicker">{d.background.certificationTitle}</p>
-              <h3>{d.background.certification.name}</h3>
-              <p className="meta">{d.background.certification.detail}</p>
+              <div className="entry-body">
+                <p className="kicker">{d.background.educationTitle}</p>
+                <h3>{d.background.education.title}</h3>
+                <p className="meta">
+                  {d.background.education.school} · {d.background.education.place} · <span className="num">{d.background.education.date}</span>
+                </p>
+                <p className="context">{d.background.education.summary}</p>
+                <p className="kicker">{d.background.education.modulesTitle}</p>
+                <div className="modules">
+                  {d.background.education.modules.map((m) => (
+                    <div key={m.label}>
+                      <h4>{m.label}</h4>
+                      <ul>
+                        {m.items.map((i) => (
+                          <li key={i}>{i}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <p className="cert">
+                  <span>{d.background.education.certification.label}</span>
+                  <b>{d.background.education.certification.name}</b> · {d.background.education.certification.detail}
+                </p>
+                <ul className="tags" aria-label="Technologies">
+                  {d.background.education.tags.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </div>
             </article>
           </div>
         </section>
+
+        <DescentBand scene="clouds" depth="−340 m" name={d.depths.clouds} />
 
         <section id="projects" className="sec">
           <header className="sec-head">
@@ -212,6 +266,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             ))}
           </div>
         </section>
+
+        <DescentBand scene="forest" depth="−1 200 m" name={d.depths.forest} />
 
         <section id="contact" className="sec">
           <header className="sec-head">

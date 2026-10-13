@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { fontVariables } from "../fonts";
 import { getDictionary, hasLocale, locales } from "./dictionaries";
+import { LOCALES } from "./locales";
 import "../globals.css";
 
 const SITE = "https://leoazzopardi.org";
@@ -22,14 +23,18 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
     description: dict.meta.description,
     alternates: {
       canonical: `/${lang}/`,
-      languages: { fr: "/fr/", en: "/en/", "x-default": "/fr/" },
+      languages: {
+        ...Object.fromEntries(locales.map((l) => [LOCALES[l].hreflang, `/${l}/`])),
+        "x-default": "/fr/",
+      },
     },
     openGraph: {
       type: "website",
       url: `/${lang}/`,
       title: dict.meta.title,
       description: dict.meta.description,
-      locale: lang === "fr" ? "fr_FR" : "en_US",
+      locale: LOCALES[lang].og,
+      alternateLocale: locales.filter((l) => l !== lang).map((l) => LOCALES[l].og),
       siteName: "Léo Azzopardi",
     },
   };
@@ -40,7 +45,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   if (!hasLocale(lang)) notFound();
 
   return (
-    <html lang={lang} className={fontVariables}>
+    <html lang={LOCALES[lang].htmlLang} className={fontVariables}>
       <body>{children}</body>
     </html>
   );

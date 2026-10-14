@@ -7,6 +7,8 @@
  * mountBand(canvas, "clouds" | "forest") returns { destroy, setPaused }: a paused band keeps its
  * current frame and resumes where it stopped.
  */
+import { makeLyingCat, makeSittingCat } from "./cats";
+
 var SCENES;
 export function mountBand(cv, name) {
   if (!SCENES) SCENES = makeScenes();
@@ -66,13 +68,19 @@ function makeScenes() {
 
   /* ---------------- scene: the sea of clouds (-340 m) ----------------
      A colossal ring hangs overhead, lightning falls from it into a dark void; a black cliff
-     on the left, a drowned fortress beyond; below, a sea of white cloud with a dark rift;
+     on the left, a drowned fortress beyond; below, a sea of white cloud;
      on the right, an outcrop of debris where the two cats sit and watch. */
-  function billows(c, r, x0, x1, yTop, yBot, size, light, mid, shade) {
-    // a heaped bank of cloud: puffs piled back to front, lit from above, a soft base to fill the gaps
+  function puffCount(x0, x1, yTop, yBot, size) { return Math.ceil((x1 - x0) / size * (yBot - yTop) / size * 1.8); }
+  function billows(c, r, x0, x1, yTop, yBot, size, light, mid, shade, wrap) {
+    // a heaped bank of cloud: puffs piled back to front, lit from above, a soft base to fill the gaps;
+    // with `wrap`, every puff is repeated one period left and right so the bank tiles seamlessly
     c.fillStyle = mid; c.fillRect(x0, yTop + size * 0.6, x1 - x0, yBot - yTop);
-    var puffs = [], n = Math.ceil((x1 - x0) / size * (yBot - yTop) / size * 1.8);
-    for (var i = 0; i < n; i++) puffs.push([x0 + r() * (x1 - x0), yTop + Math.pow(r(), 1.4) * (yBot - yTop), size * (0.7 + r() * 0.9)]);
+    var puffs = [], n = puffCount(x0, x1, yTop, yBot, size);
+    for (var i = 0; i < n; i++) {
+      var d = [x0 + r() * (x1 - x0), yTop + Math.pow(r(), 1.4) * (yBot - yTop), size * (0.7 + r() * 0.9)];
+      puffs.push(d);
+      if (wrap) puffs.push([d[0] - wrap, d[1], d[2]], [d[0] + wrap, d[1], d[2]]);
+    }
     puffs.sort(function (a, b) { return a[1] - b[1]; });
     puffs.forEach(function (d) {
       var ry = d[2] * 0.58, depth = (d[1] - yTop) / (yBot - yTop);
@@ -84,18 +92,20 @@ function makeScenes() {
       c.globalAlpha = 1;
     });
   }
-  function sittingCat(c, x, y, s, flip) {
-    c.save(); c.translate(x, y); c.scale(flip ? -s : s, s); c.fillStyle = "#040605";
-    c.beginPath(); c.ellipse(0, -0.34, 0.2, 0.34, 0.08, 0, 6.29); c.fill();
-    c.beginPath(); c.arc(0.06, -0.78, 0.15, 0, 6.29); c.fill();
-    c.beginPath(); c.moveTo(-0.06, -0.86); c.lineTo(-0.03, -1.04); c.lineTo(0.05, -0.9); c.fill();
-    c.beginPath(); c.moveTo(0.07, -0.9); c.lineTo(0.15, -1.04); c.lineTo(0.2, -0.84); c.fill();
-    c.strokeStyle = "#040605"; c.lineWidth = 0.08; c.lineCap = "round";
-    c.beginPath(); c.moveTo(-0.16, -0.06); c.quadraticCurveTo(0.1, 0.04, 0.32, -0.04); c.stroke();
-    c.restore();
-  }
   function clouds(W, H, dpr) {
     var r = rng(53), L = [];
+    // A bank of cloud on its own layer, one screen wide and tileable, sliding right at `speed` px/s.
+    // The layer starts at the bank's top (y0) and runs to the foot of the scene. It draws from its own seed but still
+    // consumes `r` as the fixed bank did, so the rest of the scene keeps its shapes.
+    function bank(k, seed, x0, x1, yTop, yBot, size, light, mid, shade, speed) {
+      for (var i = puffCount(x0, x1, yTop, yBot, size) * 3; i > 0; i--) r();
+      var top = Math.max(0, yTop - size), bot = Math.ceil(H * (1 + 2 * k));
+      var cv = document.createElement("canvas"); cv.width = W * dpr; cv.height = Math.ceil((bot - top) * dpr);
+      var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, -top * dpr);
+      c.fillStyle = mid; c.fillRect(0, yBot, W, bot - yBot); // solid down to the layer's foot: no void between banks
+      billows(c, rng(seed), 0, W, yTop, yBot, size, light, mid, shade, W);
+      return { cv: cv, k: k, y0: top, drift: speed };
+    }
 
     // back: grey sky behind the ring, the dark void beneath it, a drowned fortress on the left
     var l0 = layer(W, H, 0.03), c = l0.setup(dpr), h = l0.h;
@@ -130,10 +140,10 @@ function makeScenes() {
       c.fillStyle = "#0c0f0e"; c.beginPath(); c.moveTo(px - sw, py); c.lineTo(px + sw, py); c.lineTo(px + sw * 0.3, py + len); c.lineTo(px - sw * 0.3, py + len * 0.9); c.closePath(); c.fill();
     }
     vstrokes(c, r, cx - R * 0.9, cy - ry, R * 1.8, ry * 1.6, 500, "rgba(0,0,0,0.12)");
-    billows(c, r, -20, W + 20, h * 0.62, h * 0.74, Math.max(22, W * 0.025), "#c6cac1", "#9aa199", "rgba(70,78,74,0.22)");
     L.push(l1);
+    L.push(bank(0.1, 61, -20, W + 20, h * 0.62, h * 0.74, Math.max(22, W * 0.025), "#c6cac1", "#9aa199", "rgba(70,78,74,0.22)", W * 0.0025));
 
-    // near: the black cliff, the near sea of cloud and its rift, the outcrop with the cats
+    // near: the black cliff, the near sea of cloud, the outcrop with the cats
     var l2 = layer(W, H, 0.2); c = l2.setup(dpr); h = l2.h;
     c.fillStyle = "#070908"; c.beginPath(); c.moveTo(0, 0); c.lineTo(W * 0.26, 0);
     c.bezierCurveTo(W * 0.24, h * 0.12, W * 0.16, h * 0.14, W * 0.17, h * 0.26);
@@ -142,28 +152,40 @@ function makeScenes() {
     c.save(); c.clip(); vstrokes(c, r, 0, 0, W * 0.26, h * 0.64, 260, "rgba(120,128,122,0.25)"); c.restore();
     c.strokeStyle = "rgba(150,158,152,0.4)"; c.lineWidth = 1.5;
     c.beginPath(); c.moveTo(W * 0.26, 0); c.bezierCurveTo(W * 0.24, h * 0.12, W * 0.16, h * 0.14, W * 0.17, h * 0.26); c.stroke();
-    billows(c, r, -40, W * 0.8, h * 0.72, h * 1.05, Math.max(34, W * 0.045), "#dfe2d9", "#b4bab2", "rgba(70,78,74,0.22)");
-    c.fillStyle = "#0b0e0d"; c.beginPath(); c.ellipse(W * 0.34, h * 0.8, W * 0.07, h * 0.03, -0.08, 0, 6.29); c.fill();
-    c.strokeStyle = "rgba(80,88,84,0.6)"; c.lineWidth = 1; c.beginPath(); c.ellipse(W * 0.34, h * 0.8 - 3, W * 0.075, h * 0.034, -0.08, Math.PI, 0); c.stroke();
+    L.push(l2);
+    // the near bank drifts twice as fast as the far one
+    L.push(bank(0.2, 67, -40, W * 0.8, h * 0.72, h * 1.05, Math.max(34, W * 0.045), "#dfe2d9", "#b4bab2", "rgba(70,78,74,0.22)", W * 0.005));
+    l2 = layer(W, H, 0.2); c = l2.setup(dpr);
     // the outcrop: stacked blocks and pipes climbing toward the right edge
     var top = [];
     c.fillStyle = "#0a0d0c"; c.beginPath(); c.moveTo(W * 0.58, h * 1.05);
     for (var ox = 0; ox <= 1; ox += 0.1) { var tx = lerp(W * 0.6, W * 1.02, ox), ty = lerp(h * 0.86, h * 0.52, ox) + (r() - 0.5) * h * 0.03; top.push([tx, ty]); c.lineTo(tx, ty); }
     c.lineTo(W * 1.02, h * 1.05); c.closePath(); c.fill();
     c.save(); c.clip(); vstrokes(c, r, W * 0.6, h * 0.6, W * 0.42, h * 0.45, 260, "rgba(110,118,113,0.25)"); c.restore();
-    for (var pi = 0; pi < 4; pi++) { var p0 = top[2 + pi * 2]; c.fillStyle = "#1a201d"; c.save(); c.translate(p0[0], p0[1] + 10); c.rotate(-0.6); c.fillRect(-6, -60, 13, 70); c.fillStyle = "rgba(170,178,172,0.3)"; c.fillRect(-6, -60, 3, 70); c.restore(); }
+    // the third pipe gave way to the cats' girder
+    for (var pi = 0; pi < 4; pi++) { if (pi === 2) continue; var p0 = top[2 + pi * 2]; c.fillStyle = "#1a201d"; c.save(); c.translate(p0[0], p0[1] + 10); c.rotate(-0.6); c.fillRect(-6, -60, 13, 70); c.fillStyle = "rgba(170,178,172,0.3)"; c.fillRect(-6, -60, 3, 70); c.restore(); }
     for (var ti = 0; ti < top.length - 1; ti++) {
       var a3 = top[ti], b3 = top[ti + 1];
       if (r() < 0.6) for (var mx = 0; mx < 1; mx += 0.2) cushion(c, r, lerp(a3[0], b3[0], mx), lerp(a3[1], b3[1], mx), 2.4 + r() * 2.4, 0.95);
     }
-    var catS = Math.max(18, W * 0.018), c1 = top[4], c2 = top[5];
-    sittingCat(c, c1[0], c1[1] - 1, catS, true);
-    sittingCat(c, c2[0], c2[1] - 1, catS * 0.88, true);
+    // the cats' perch: a girder jutting out of the rock, flat and clear of the slope so both read
+    // against the clouds, the sitter at its tip, the other lying behind; a brace holds it up
+    function groundAt(x) {
+      for (var gi = 0; gi < top.length - 1; gi++) if (x <= top[gi + 1][0]) return lerp(top[gi][1], top[gi + 1][1], clamp((x - top[gi][0]) / (top[gi + 1][0] - top[gi][0]), 0, 1));
+      return top[top.length - 1][1];
+    }
+    var catS = Math.max(18, W * 0.018), gx = top[7][0], gy = groundAt(gx), g0 = gx - 3.5 * catS, gt = 0.24 * catS;
+    var bx = gx - 0.5 * catS;
+    c.strokeStyle = "#1a201d"; c.lineWidth = 0.13 * catS; c.lineCap = "butt";
+    c.beginPath(); c.moveTo(g0 + 0.9 * catS, gy + gt / 2); c.lineTo(bx, groundAt(bx) + 4); c.stroke();
+    c.fillStyle = "#1a201d"; c.fillRect(g0, gy, gx + 0.3 * catS - g0, gt);
+    c.fillStyle = "rgba(170,178,172,0.3)"; c.fillRect(g0, gy, gx + 0.3 * catS - g0, 1);
+    var perch = { lie: [gx - 1.4 * catS, gy], sit: [g0 + 0.75 * catS, gy], s: catS };
     L.push(l2);
 
     var streams = [];
     for (var st = 0; st < 3; st++) streams.push({ y: 0.32 + st * 0.08 + r() * 0.04, len: 0.4 + r() * 0.3, th: 8 + r() * 14, sp: 6 + r() * 8, ph: r() });
-    var nextBolt = 4;
+    var nextBolt = 4, sitter = makeSittingCat(5), lounger = makeLyingCat(11);
     return {
       layers: L, motes: 14, manta: false,
       live: function (ctx, t, p) {
@@ -187,6 +209,10 @@ function makeScenes() {
             ctx.stroke();
           }
         } else if (t > nextBolt + 0.22) nextBolt = t + 6 + Math.random() * 9;
+        // the cats ride with the near layer
+        var dy = -2 * 0.2 * H * p;
+        sitter(ctx, perch.sit[0], perch.sit[1] + dy, perch.s, t);
+        lounger(ctx, perch.lie[0], perch.lie[1] + dy, perch.s, t);
       },
     };
   }
@@ -311,7 +337,12 @@ function makeScenes() {
       if (!scene) return;
       var p = reduce ? 0.5 : progress(), t = now / 1000;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      scene.layers.forEach(function (l) { ctx.drawImage(l.cv, 0, -2 * l.k * H * p * dpr); });
+      scene.layers.forEach(function (l) {
+        var y = (-2 * l.k * H * p + (l.y0 || 0)) * dpr;
+        if (!l.drift) return ctx.drawImage(l.cv, 0, y);
+        var x = (reduce ? 0 : (t * l.drift) % W) * dpr; // a drifting layer tiles: two copies side by side
+        ctx.drawImage(l.cv, x, y); ctx.drawImage(l.cv, x - W * dpr, y);
+      });
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (scene.manta && !reduce) { // one ray drifting between the columns, now and then
         var cyc = (t % 48) / 48;

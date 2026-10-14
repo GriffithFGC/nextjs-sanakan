@@ -4,7 +4,8 @@
  * scrolls through the viewport; motes, drifting cloud and the rare manta or lightning are
  * drawn live, only while the band is on screen. Ported from content/prototype-descente.html.
  *
- * mountBand(canvas, "clouds" | "forest") returns a cleanup function.
+ * mountBand(canvas, "clouds" | "forest") returns { destroy, setPaused }: a paused band keeps its
+ * current frame and resumes where it stopped.
  */
 var SCENES;
 export function mountBand(cv, name) {
@@ -295,12 +296,15 @@ function makeScenes() {
   }
   function band(cv, make) {
     var ctx = cv.getContext("2d"), W = 0, H = 0, dpr = 1, scene = null, motes = [], visible = false, raf = 0;
+    var paused = false, pausedAt = 0, lag = 0, last = performance.now(); // lag: time spent paused, kept off the clock
     function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; if (!W || !H) return;
+      var d = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
+      if (!w || !h || (w === W && h === H && d === dpr)) return; // the observer's first call repeats the initial size
+      dpr = d; W = w; H = h;
       cv.width = W * dpr; cv.height = H * dpr; scene = make(W, H, dpr);
       var r = rng(9); motes = [];
       for (var i = 0; i < scene.motes; i++) motes.push({ x: r() * W, y: r() * H, sp: 2 + r() * 5, ph: r() * 6.3, rad: 0.7 + r() * 1.4, brass: r() < 0.2 });
-      paint(performance.now());
+      paint(paused ? last : performance.now() - lag);
     }
     function progress() { var b = cv.getBoundingClientRect(), vh = window.innerHeight; return clamp((vh - b.top) / (vh + b.height), 0, 1); }
     function paint(now) {
@@ -329,12 +333,26 @@ function makeScenes() {
       f.addColorStop(0, "rgba(13,16,15,1)"); f.addColorStop(0.12, "rgba(13,16,15,0)"); f.addColorStop(0.8, "rgba(13,16,15,0)"); f.addColorStop(1, "rgba(13,16,15,1)");
       ctx.fillStyle = f; ctx.fillRect(0, 0, W, H);
     }
-    function loop(now) { raf = 0; paint(now); if (visible && !reduce) raf = requestAnimationFrame(loop); }
-    var io = new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible && !raf && !reduce) raf = requestAnimationFrame(loop); });
+    function schedule() { if (visible && !raf && !reduce && !paused) raf = requestAnimationFrame(loop); }
+    function loop(now) { raf = 0; last = now - lag; paint(last); schedule(); }
+    function setPaused(p) {
+      if (p === paused) return;
+      paused = p;
+      if (p) { pausedAt = performance.now(); if (raf) cancelAnimationFrame(raf); raf = 0; }
+      else { lag += performance.now() - pausedAt; schedule(); }
+    }
+    var io = new IntersectionObserver(function (es) {
+      visible = es[0].isIntersecting;
+      if (visible && paused) paint(last); // frozen, but framed for where the band now sits
+      schedule();
+    });
     var ro = new ResizeObserver(resize);
     io.observe(cv); ro.observe(cv);
     resize();
-    return function cleanup() { if (raf) cancelAnimationFrame(raf); raf = 0; visible = false; io.disconnect(); ro.disconnect(); };
+    return {
+      setPaused: setPaused,
+      destroy: function () { if (raf) cancelAnimationFrame(raf); raf = 0; visible = false; io.disconnect(); ro.disconnect(); },
+    };
   }
   return { band: band, clouds: clouds, forest: forest };
 }

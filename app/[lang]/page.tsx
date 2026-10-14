@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { DescentBand } from "@/components/descent/DescentBand";
 import { HeroScene } from "@/components/hero/HeroScene";
+import { MotionToggle } from "@/components/MotionToggle";
 import { Rich } from "@/components/Rich";
 import { getDictionary, hasLocale, locales } from "./dictionaries";
 import { LOCALES } from "./locales";
@@ -19,20 +20,33 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
     ["contact", d.nav.contact],
   ] as const;
 
+  // Arrow for sighted readers, words for screen readers.
+  const newTab = (
+    <>
+      {" "}
+      <span aria-hidden="true">↗</span>
+      <span className="sr-only"> {d.a11y.newTab}</span>
+    </>
+  );
+
   return (
     <>
+      <a className="skip" href="#content">
+        {d.a11y.skip}
+      </a>
       <header className="site-nav">
         <a className="mark" href={`/${lang}/`}>
           Léo Azzopardi<span>.</span>
         </a>
-        <nav aria-label="Sections">
+        <nav aria-label={d.a11y.sections}>
           {nav.map(([id, label]) => (
             <a key={id} href={`#${id}`}>
               {label}
             </a>
           ))}
         </nav>
-        <nav className="langs" aria-label={d.nav.languages}>
+        <div className="tools">
+          <nav className="langs" aria-label={d.nav.languages}>
           {locales.map((l) =>
             l === lang ? (
               <span key={l} aria-current="page" title={LOCALES[l].name}>
@@ -44,10 +58,12 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
               </a>
             ),
           )}
-        </nav>
+          </nav>
+          <MotionToggle label={d.a11y.pause} />
+        </div>
       </header>
 
-      <main>
+      <main id="content">
         <section className="hero" aria-labelledby="hero-name">
           <HeroScene />
           <p className="depth hero-depth">
@@ -200,7 +216,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 {p.note && <p className="note">{p.note}</p>}
                 {p.link && (
                   <a className="ext" href={p.link.href} rel="noopener" target="_blank">
-                    {p.link.label} ↗
+                    {p.link.label}
+                    {newTab}
                   </a>
                 )}
               </article>
@@ -213,7 +230,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <b>{x.name}</b> — {x.body}{" "}
                 {x.link && (
                   <a className="ext" href={x.link.href} rel="noopener" target="_blank">
-                    {x.link.label} ↗
+                    {x.link.label}
+                    {newTab}
                   </a>
                 )}
               </li>
@@ -259,7 +277,8 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 ))}
                 {b.link && (
                   <a className="ext" href={b.link.href} rel="noopener" target="_blank">
-                    {b.link.label} ↗
+                    {b.link.label}
+                    {newTab}
                   </a>
                 )}
               </article>
@@ -281,6 +300,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                 <span>{l.label}</span>
                 <a href={l.href} {...(l.href.startsWith("http") ? { rel: "noopener", target: "_blank" } : {})}>
                   {l.value}
+                  {l.href.startsWith("http") && <span className="sr-only"> {d.a11y.newTab}</span>}
                 </a>
               </li>
             ))}

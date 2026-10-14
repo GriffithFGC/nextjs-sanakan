@@ -183,6 +183,12 @@ const ja: Dictionary = {
     ],
   },
   depths: { hero: "縦穴", clouds: "雲海", forest: "吊り下がる森" },
+  a11y: {
+    skip: "本文へスキップ",
+    sections: "セクション",
+    newTab: "（新しいタブで開きます）",
+    pause: "アニメーションを一時停止",
+  },
   footer: "© 2026 Léo Azzopardi · leoazzopardi.org",
 };
 

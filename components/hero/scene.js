@@ -7,7 +7,8 @@
  * - A pair of manta rays passes rarely: first after 25–50 s, then every 1–2 min.
  * - prefers-reduced-motion: a single still frame, nothing animates.
  *
- * mountScene(canvas) starts everything and returns a cleanup function.
+ * mountScene(canvas) starts everything and returns { destroy, setPaused }: a paused scene keeps
+ * its current frame and resumes where it stopped.
  */
 export function mountScene(cv) {
   var ctx = cv.getContext("2d");
@@ -16,6 +17,7 @@ export function mountScene(cv) {
   var veg = document.createElement("canvas"), vctx = veg.getContext("2d");
   var W = 0, H = 0, DPR = 1, S = null, growth = 0.35, start = null, vegCached = false, grain = null;
   var mantaAt = null, nextManta = null, MANTA_D = 22;
+  var paused = false, pausedAt = 0, lag = 0, last = null; // lag: time spent paused, kept off the clock
 
   function rng(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -433,14 +435,17 @@ export function mountScene(cv) {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); paintLive(ctx, T, time);
   }
   function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = cv.clientWidth; H = cv.clientHeight; if (!W || !H) return;
+    var d = Math.min(window.devicePixelRatio || 1, 2), w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h || (w === W && h === H && d === DPR)) return; // the observer's first call repeats the initial size
+    DPR = d; W = w; H = h;
     cv.width = arch.width = veg.width = W * DPR; cv.height = arch.height = veg.height = H * DPR;
     build(); paintArch(); vegCached = false;
     if (reduce) draw(1e6, 0);
+    else if (paused && last !== null) draw((last - start) / 1000, last / 1000);
   }
   function loop(now) {
     var sec = now / 1000;
+    last = now;
     if (start === null) start = now;
     if (nextManta === null) nextManta = sec + 25 + Math.random() * 25;
     if (mantaAt === null && sec >= nextManta) mantaAt = sec;
@@ -449,8 +454,14 @@ export function mountScene(cv) {
   }
 
   var raf = 0, visible = true;
-  function tick(now) { raf = 0; loop(now); }
-  function schedule() { if (!raf && visible && !reduce) raf = requestAnimationFrame(tick); }
+  function tick(now) { raf = 0; loop(now - lag); }
+  function schedule() { if (!raf && visible && !reduce && !paused) raf = requestAnimationFrame(tick); }
+  function setPaused(p) {
+    if (p === paused) return;
+    paused = p;
+    if (p) { pausedAt = performance.now(); if (raf) cancelAnimationFrame(raf); raf = 0; }
+    else { lag += performance.now() - pausedAt; schedule(); }
+  }
 
   grain = makeGrain();
   resize();
@@ -461,10 +472,13 @@ export function mountScene(cv) {
   if (io) io.observe(cv);
   schedule();
 
-  return function cleanup() {
-    if (raf) cancelAnimationFrame(raf);
-    raf = 0; visible = false;
-    if (ro) ro.disconnect();
-    if (io) io.disconnect();
+  return {
+    setPaused: setPaused,
+    destroy: function () {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0; visible = false;
+      if (ro) ro.disconnect();
+      if (io) io.disconnect();
+    },
   };
 }

@@ -183,6 +183,12 @@ const zh: Dictionary = {
     ],
   },
   depths: { hero: "竖井", clouds: "云海", forest: "悬垂之林" },
+  a11y: {
+    skip: "跳到正文",
+    sections: "页面导航",
+    newTab: "（在新标签页中打开）",
+    pause: "暂停动画",
+  },
   footer: "© 2026 Léo Azzopardi · leoazzopardi.org",
 };
 

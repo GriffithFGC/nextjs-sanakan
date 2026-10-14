@@ -199,6 +199,12 @@ const en: Dictionary = {
     ],
   },
   depths: { hero: "The shaft", clouds: "Sea of clouds", forest: "Hanging forest" },
+  a11y: {
+    skip: "Skip to content",
+    sections: "Sections",
+    newTab: "(opens in a new tab)",
+    pause: "Pause animations",
+  },
   footer: "© 2026 Léo Azzopardi · leoazzopardi.org",
 };
 

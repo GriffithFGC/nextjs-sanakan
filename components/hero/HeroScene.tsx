@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motion } from "../motion";
 import { mountScene } from "./scene";
 
 export function HeroScene() {
@@ -8,7 +9,13 @@ export function HeroScene() {
 
   useEffect(() => {
     if (!canvas.current) return;
-    return mountScene(canvas.current);
+    const scene = mountScene(canvas.current);
+    scene.setPaused(motion.isPaused());
+    const unsubscribe = motion.subscribe(scene.setPaused);
+    return () => {
+      unsubscribe();
+      scene.destroy();
+    };
   }, []);
 
   return <canvas ref={canvas} className="hero-canvas" aria-hidden="true" />;

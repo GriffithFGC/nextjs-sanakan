@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { motion } from "../motion";
 import { mountBand } from "./bands";
 
 export function DescentBand({ scene, depth, name }: { scene: "clouds" | "forest"; depth: string; name: string }) {
@@ -8,7 +9,13 @@ export function DescentBand({ scene, depth, name }: { scene: "clouds" | "forest"
 
   useEffect(() => {
     if (!canvas.current) return;
-    return mountBand(canvas.current, scene);
+    const band = mountBand(canvas.current, scene);
+    band.setPaused(motion.isPaused());
+    const unsubscribe = motion.subscribe(band.setPaused);
+    return () => {
+      unsubscribe();
+      band.destroy();
+    };
   }, [scene]);
 
   return (

@@ -90,5 +90,6 @@ export type Dictionary = {
     links: { label: string; value: string; href: string }[];
   };
   depths: { hero: string; clouds: string; forest: string };
+  a11y: { skip: string; sections: string; newTab: string; pause: string };
   footer: string;
 };

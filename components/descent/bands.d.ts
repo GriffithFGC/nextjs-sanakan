@@ -1,1 +1,1 @@
-export function mountBand(canvas: HTMLCanvasElement, scene: "clouds" | "forest"): () => void;
+export function mountBand(canvas: HTMLCanvasElement, scene: "clouds" | "forest"): { destroy: () => void; setPaused: (paused: boolean) => void };

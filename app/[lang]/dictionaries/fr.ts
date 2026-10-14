@@ -199,6 +199,12 @@ const fr: Dictionary = {
     ],
   },
   depths: { hero: "Le puits", clouds: "Mer de nuages", forest: "Forêt suspendue" },
+  a11y: {
+    skip: "Aller au contenu",
+    sections: "Sections",
+    newTab: "(nouvel onglet)",
+    pause: "Mettre les animations en pause",
+  },
   footer: "© 2026 Léo Azzopardi · leoazzopardi.org",
 };
 

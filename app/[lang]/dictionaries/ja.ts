@@ -158,6 +158,7 @@ const ja: Dictionary = {
           "初恋は今も **Super Smash Bros. Melee**。あえて派手な Fox を使っていました。今のメインは **Street Fighter 6** の **Viper**。操作の難しさで知られるキャラクターです。キャラクターを選ぶとき、私が求めているのはまさにそれ。急な学習曲線と、トレーニングで勝ち取る一歩一歩の上達です。",
         ],
         link: { label: "start.gg プロフィール — Griffith", href: "https://www.start.gg/user/fc8a6021" },
+        page: { label: "Learning Resources · SF6", href: "/sf6-learn/" },
       },
       {
         title: "武道",

@@ -1,6 +1,6 @@
 "use client";
 
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Gateway, Session } from "./api";
 import { type Entry, KIND_LABEL, type Vault, basename, dirname, formatSize, kindOf, routeHref, title } from "./files";
 import { Drawing } from "./Drawing";
@@ -287,6 +287,28 @@ function Note({ ctx, path, anchor }: { ctx: ReaderContext; path: string; anchor:
     return () => window.clearTimeout(late);
   }, [state.status, anchor]);
 
+  // A medium that fails to load (a dropped connection, a link that lapsed while the tab slept)
+  // gets one more try with a freshly signed URL. `error` does not bubble: listen while capturing.
+  const latestToken = useRef(token);
+  useLayoutEffect(() => {
+    latestToken.current = token;
+  });
+  const retryMedia = useCallback(
+    (el: HTMLDivElement | null) => {
+      if (!el) return;
+      const onError = (e: Event) => {
+        const m = e.target as HTMLImageElement | HTMLMediaElement;
+        const p = m.dataset?.path;
+        if (!p || m.dataset.retried) return;
+        m.dataset.retried = "1";
+        m.src = gateway.mediaUrl(p, latestToken.current);
+      };
+      el.addEventListener("error", onError, true);
+      return () => el.removeEventListener("error", onError, true);
+    },
+    [gateway],
+  );
+
   if (state.status === "loading") return <p className="sf6-loading">Lecture de la note</p>;
   if (state.status === "error") return <p className="sf6-error">{state.message}</p>;
   if ("scene" in state.value) {
@@ -318,7 +340,7 @@ function Note({ ctx, path, anchor }: { ctx: ReaderContext; path: string; anchor:
         </details>
       )}
       {/* Safe by construction: renderMarkdown escapes all text and emits only its own tags. */}
-      <div className="sf6-prose" dangerouslySetInnerHTML={{ __html: html }} />
+      <div className="sf6-prose" ref={retryMedia} dangerouslySetInnerHTML={{ __html: html }} />
     </>
   );
 }

@@ -81,7 +81,7 @@ export type Dictionary = {
     strata: string;
     title: string;
     intro: string;
-    blocks: { title: string; body: string[]; link?: Link }[];
+    blocks: { title: string; body: string[]; link?: Link; page?: Link }[];
   };
   contact: {
     strata: string;

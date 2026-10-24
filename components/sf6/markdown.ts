@@ -369,11 +369,11 @@ class Renderer {
     const alt = esc(size || !opt ? title(path) : opt);
     switch (kind) {
       case "image":
-        return `<span class="embed embed-image"><img src="${src}" alt="${alt}" loading="lazy" decoding="async"${dims}></span>`;
+        return `<span class="embed embed-image"><img src="${src}" data-path="${esc(path)}" alt="${alt}" loading="lazy" decoding="async"${dims}></span>`;
       case "video":
-        return `<span class="embed embed-video"><video src="${src}" controls preload="metadata" playsinline${dims}></video></span>`;
+        return `<span class="embed embed-video"><video src="${src}" data-path="${esc(path)}" controls preload="metadata" playsinline${dims}></video></span>`;
       case "audio":
-        return `<span class="embed embed-audio"><audio src="${src}" controls preload="metadata"></audio></span>`;
+        return `<span class="embed embed-audio"><audio src="${src}" data-path="${esc(path)}" controls preload="metadata"></audio></span>`;
       case "excalidraw": {
         const preview = this.ctx.vault.drawingPreview(path);
         if (preview) return `<a class="embed embed-image embed-drawing" href="${routeHref(path)}"><img src="${esc(this.ctx.media(preview))}" alt="${alt}" loading="lazy" decoding="async"${dims}></a>`;
@@ -396,8 +396,8 @@ class Renderer {
     // Obsidian puts the size in the alt text: ![caption|300](img.png)
     const [caption, width] = alt.split("|");
     const w = width && /^\d+$/.test(width.trim()) ? ` width="${width.trim()}"` : "";
-    if (kindOf(path) === "video") return `<span class="embed embed-video"><video src="${esc(this.ctx.media(path))}" controls preload="metadata" playsinline></video></span>`;
-    return `<span class="embed embed-image"><img src="${esc(this.ctx.media(path))}" alt="${esc(caption)}"${t}${w} loading="lazy" decoding="async"></span>`;
+    if (kindOf(path) === "video") return `<span class="embed embed-video"><video src="${esc(this.ctx.media(path))}" data-path="${esc(path)}" controls preload="metadata" playsinline></video></span>`;
+    return `<span class="embed embed-image"><img src="${esc(this.ctx.media(path))}" data-path="${esc(path)}" alt="${esc(caption)}"${t}${w} loading="lazy" decoding="async"></span>`;
   }
 
   private link(label: string, href: string) {

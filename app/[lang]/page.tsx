@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DescentBand } from "@/components/descent/DescentBand";
 import { HeroScene } from "@/components/hero/HeroScene";
@@ -280,6 +281,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
                     {b.link.label}
                     {newTab}
                   </a>
+                )}
+                {b.page && (
+                  <Link className="btn page-link" href={b.page.href}>
+                    {b.page.label} <span aria-hidden="true">→</span>
+                  </Link>
                 )}
               </article>
             ))}

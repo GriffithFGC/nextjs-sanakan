@@ -158,6 +158,7 @@ const zh: Dictionary = {
           "我的初恋仍是 **Super Smash Bros. Melee**，我在其中玩一个刻意华丽的 Fox。如今我的主力游戏是 **Street Fighter 6**，使用 **Viper**——一个以操作难度著称的角色。这正是我选择角色时所追求的：陡峭的学习曲线，每一点进步都要在训练中赢得。",
         ],
         link: { label: "start.gg 主页 — Griffith", href: "https://www.start.gg/user/fc8a6021" },
+        page: { label: "Learning Resources · SF6", href: "/sf6-learn/" },
       },
       {
         title: "武道",

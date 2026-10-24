@@ -167,6 +167,7 @@ const en: Dictionary = {
           "My first love is still **Super Smash Bros. Melee**, where I played a deliberately flashy Fox. Today my main game is **Street Fighter 6**, playing **Viper** — a character known for her demanding execution. That's exactly what I look for when I pick up a character: a steep learning curve, where every step forward is earned in training mode.",
         ],
         link: { label: "start.gg profile — Griffith", href: "https://www.start.gg/user/fc8a6021" },
+        page: { label: "Learning Resources · SF6", href: "/sf6-learn/" },
       },
       {
         title: "Martial arts",

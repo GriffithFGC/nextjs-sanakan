@@ -1,56 +1,147 @@
 "use client";
 
-import { type CSSProperties, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { type ExElement, type Point, type Scene, box, linkOf } from "./excalidraw";
 import { kindOf, routeHref, title } from "./files";
 import type { ReaderContext } from "./Reader";
 
-// An Excalidraw board: shapes and text in one SVG, embeds as HTML on top of it (videos must
-// stay real players), all laid out in scene units times the zoom. The SVG takes Excalidraw's
-// own dark-mode filter, so the colours match what Obsidian shows; embeds are left untouched.
+// An Excalidraw board, explored like in Excalidraw: drag to move, wheel (or pinch) to zoom
+// around the pointer. Shapes and text are one SVG, embeds are HTML on top of it (videos must
+// stay real players); both sit on a stage in scene units that one CSS transform moves and
+// scales. The SVG takes Excalidraw's own dark-mode filter, so the colours match Obsidian.
 
 const MIN_ZOOM = 0.02;
-const MAX_ZOOM = 2;
-const STEP = 1.25;
+const MAX_ZOOM = 4;
+const DRAG = 4; // px of travel before a press becomes a drag rather than a click
 
 type Resolved = { path: string } | { url: string } | null;
+type View = { x: number; y: number; z: number };
+
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
 
 export function Drawing({ ctx, path, scene }: { ctx: ReaderContext; path: string; scene: Scene }) {
-  const port = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  const [zoom, setZoom] = useState<number | null>(null); // null: fit the width
+  const [port, setPort] = useState<HTMLDivElement | null>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  const [moved, setMoved] = useState<View | null>(null); // null: the whole drawing, centred
   const [playing, setPlaying] = useState<string | null>(null);
-  const keep = useRef<{ cx: number; cy: number } | null>(null);
   // Signed once: a refreshed token must not reload what is on screen.
   const [media] = useState(() => (p: string) => ctx.gateway.mediaUrl(p, ctx.token));
 
   // Measured as soon as the viewport exists, then on every resize.
   const measure = useCallback((el: HTMLDivElement | null) => {
-    port.current = el;
+    setPort(el);
     if (!el) return;
-    setWidth(el.clientWidth);
-    const ro = new ResizeObserver(() => setWidth(el.clientWidth));
+    const read = () => setSize({ w: el.clientWidth, h: el.clientHeight });
+    read();
+    const ro = new ResizeObserver(read);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
   const { bounds } = scene;
-  const fit = width ? Math.min(1, width / bounds.width) : 0;
-  const z = zoom ?? fit;
+  const fit = useCallback((): View => {
+    const z = clampZoom(Math.min(1, size.w / bounds.width, size.h / bounds.height));
+    return { x: (size.w - bounds.width * z) / 2, y: (size.h - bounds.height * z) / 2, z };
+  }, [size, bounds]);
+  const view = moved ?? fit();
 
-  // Zooming keeps the middle of the view where it was.
-  const zoomTo = (next: number | null) => {
-    const el = port.current;
-    if (el && z) keep.current = { cx: (el.scrollLeft + el.clientWidth / 2) / z, cy: (el.scrollTop + el.clientHeight / 2) / z };
-    setZoom(next === null ? null : Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, next)));
-  };
+  // Read by the native listeners below, which are bound once.
+  const live = useRef(view);
   useLayoutEffect(() => {
-    const el = port.current;
-    if (!el || !keep.current) return;
-    el.scrollLeft = keep.current.cx * z - el.clientWidth / 2;
-    el.scrollTop = keep.current.cy * z - el.clientHeight / 2;
-    keep.current = null;
-  }, [z]);
+    live.current = view;
+  });
+
+  /** Zoom by `factor`, keeping the scene point under (cx, cy) where it is on screen. */
+  const zoomAt = useCallback((factor: number, cx: number, cy: number) => {
+    const v = live.current;
+    const z = clampZoom(v.z * factor);
+    const k = z / v.z;
+    setMoved({ x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k, z });
+  }, []);
+
+  // Wheel and touch need non-passive listeners: the page must not scroll or zoom meanwhile.
+  useEffect(() => {
+    if (!port) return;
+    const wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const r = port.getBoundingClientRect();
+      const lines = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? r.height : 1;
+      // ctrl+wheel is a trackpad pinch: its deltas are small, give them more weight
+      const delta = e.deltaY * lines * (e.ctrlKey ? 10 : 1);
+      zoomAt(Math.exp(-Math.max(-100, Math.min(100, delta)) * 0.0025), e.clientX - r.left, e.clientY - r.top);
+    };
+    port.addEventListener("wheel", wheel, { passive: false });
+    return () => port.removeEventListener("wheel", wheel);
+  }, [port, zoomAt]);
+
+  // Pointers: one moves the board, two pinch it. A press that barely moves stays a click.
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const gesture = useRef<{ dragging: boolean; start: { x: number; y: number }; pinch: number | null }>({ dragging: false, start: { x: 0, y: 0 }, pinch: null });
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 1) gesture.current = { dragging: false, start: { x: e.clientX, y: e.clientY }, pinch: null };
+  };
+
+  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const last = pointers.current.get(e.pointerId);
+    if (!last || !port) return;
+    const g = gesture.current;
+    const now = { x: e.clientX, y: e.clientY };
+    if (!g.dragging && Math.hypot(now.x - g.start.x, now.y - g.start.y) < DRAG) return;
+    if (!g.dragging) {
+      g.dragging = true;
+      port.setPointerCapture(e.pointerId);
+    }
+    pointers.current.set(e.pointerId, now);
+    const pts = [...pointers.current.values()];
+    if (pts.length >= 2) {
+      const [a, b] = pts;
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      const r = port.getBoundingClientRect();
+      if (g.pinch) zoomAt(dist / g.pinch, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
+      g.pinch = dist;
+      // and the midpoint drags the board along
+      const v = live.current;
+      setMoved({ ...v, x: v.x + (now.x - last.x) / 2, y: v.y + (now.y - last.y) / 2 });
+    } else {
+      const v = live.current;
+      setMoved({ ...v, x: v.x + now.x - last.x, y: v.y + now.y - last.y });
+    }
+  };
+
+  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    pointers.current.delete(e.pointerId);
+    gesture.current.pinch = null;
+  };
+
+  // The click that ends a drag must not open the tile or link it started on.
+  const onClickCapture = (e: MouseEvent) => {
+    if (!gesture.current.dragging) return;
+    e.preventDefault();
+    e.stopPropagation();
+    gesture.current.dragging = false;
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = 60;
+    const v = live.current;
+    const moves: Record<string, () => void> = {
+      ArrowLeft: () => setMoved({ ...v, x: v.x + step }),
+      ArrowRight: () => setMoved({ ...v, x: v.x - step }),
+      ArrowUp: () => setMoved({ ...v, y: v.y + step }),
+      ArrowDown: () => setMoved({ ...v, y: v.y - step }),
+      "+": () => zoomAt(1.25, size.w / 2, size.h / 2),
+      "=": () => zoomAt(1.25, size.w / 2, size.h / 2),
+      "-": () => zoomAt(1 / 1.25, size.w / 2, size.h / 2),
+      "0": () => setMoved(null),
+    };
+    const run = moves[e.key];
+    if (!run || e.ctrlKey || e.metaKey || e.altKey) return;
+    e.preventDefault();
+    run();
+  };
 
   const resolve = (e: ExElement): Resolved => {
     const l = linkOf(e);
@@ -64,25 +155,34 @@ export function Drawing({ ctx, path, scene }: { ctx: ReaderContext; path: string
 
   return (
     <div className="sf6-board">
-      <div className="sf6-board-bar" role="toolbar" aria-label="Zoom du dessin">
-        <button type="button" className="sf6-ghost" onClick={() => zoomTo(z / STEP)} aria-label="Dézoomer">
-          −
+      <div className="sf6-board-bar">
+        <span className="sf6-board-hint">Glisser pour se déplacer · molette pour zoomer{embeds.length > 0 && " · clic sur une vidéo pour la lire"}</span>
+        <span className="num" aria-live="polite">
+          {Math.round(view.z * 100)} %
+        </span>
+        <button type="button" className="sf6-ghost" onClick={() => setMoved(null)} disabled={!moved}>
+          Recentrer
         </button>
-        <button type="button" className="sf6-ghost" onClick={() => zoomTo(null)} aria-pressed={zoom === null}>
-          Ajuster
-        </button>
-        <button type="button" className="sf6-ghost" onClick={() => zoomTo(z * STEP)} aria-label="Zoomer">
-          +
-        </button>
-        <span className="num">{Math.round(z * 100)} %</span>
-        <span className="sf6-board-hint">{embeds.length > 0 && `${embeds.length} média${embeds.length > 1 ? "s" : ""} · touche une vidéo pour la lire`}</span>
       </div>
-      <div className="sf6-board-port" ref={measure} tabIndex={0} aria-label={`Dessin ${title(path)}`}>
-        {z > 0 && (
-          <div className="sf6-board-canvas" style={{ width: bounds.width * z, height: bounds.height * z }}>
-            <Shapes scene={scene} z={z} resolve={resolve} />
+      <div
+        className="sf6-board-port"
+        ref={measure}
+        tabIndex={0}
+        role="application"
+        aria-label={`Dessin ${title(path)} : flèches pour se déplacer, + et − pour zoomer, 0 pour recentrer`}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onClickCapture={onClickCapture}
+        onDragStart={(e) => e.preventDefault()}
+        onKeyDown={onKeyDown}
+      >
+        {size.w > 0 && (
+          <div className="sf6-board-stage" style={{ width: bounds.width, height: bounds.height, transform: `translate(${view.x}px, ${view.y}px) scale(${view.z})` }}>
+            <Shapes scene={scene} resolve={resolve} />
             {embeds.map((e) => (
-              <Embed key={e.id} e={e} scene={scene} z={z} target={e.type === "image" ? fileOf(e, scene, ctx, path) : resolve(e)} media={media} onPlay={setPlaying} />
+              <Embed key={e.id} e={e} scene={scene} z={view.z} root={port} target={e.type === "image" ? fileOf(e, scene, ctx, path) : resolve(e)} media={media} onPlay={setPlaying} />
             ))}
           </div>
         )}
@@ -101,49 +201,52 @@ function fileOf(e: ExElement, scene: Scene, ctx: ReaderContext, from: string): R
 
 // ---- embeds: videos as tiles that open a player, images as images, the rest as links
 
-function Embed({ e, scene, z, target, media, onPlay }: { e: ExElement; scene: Scene; z: number; target: Resolved; media: (p: string) => string; onPlay: (p: string) => void }) {
+type EmbedProps = { e: ExElement; scene: Scene; z: number; root: HTMLElement | null; target: Resolved; media: (p: string) => string; onPlay: (p: string) => void };
+
+function Embed({ e, scene, z, root, target, media, onPlay }: EmbedProps) {
   const b = box(e);
+  // In scene units, like the stage; labels keep a readable size on screen whatever the zoom.
   const style = {
-    left: (b.x - scene.bounds.x) * z,
-    top: (b.y - scene.bounds.y) * z,
-    width: b.width * z,
-    height: b.height * z,
+    left: b.x - scene.bounds.x,
+    top: b.y - scene.bounds.y,
+    width: b.width,
+    height: b.height,
     transform: e.angle ? `rotate(${e.angle}rad)` : undefined,
-    fontSize: Math.max(9, Math.min(14, b.height * z * 0.08)),
+    fontSize: Math.max(9, Math.min(14, b.height * z * 0.08)) / z,
+    borderWidth: 1 / z,
   };
   if (!target) return <span className="sf6-tile sf6-tile-missing" style={style} title="Lien introuvable dans le dépôt" />;
   if ("url" in target)
     return (
-      <a className="sf6-tile" style={style} href={target.url} target="_blank" rel="noopener noreferrer">
+      <a className="sf6-tile" style={style} href={target.url} target="_blank" rel="noopener noreferrer" draggable={false}>
         <span>{new URL(target.url).hostname} ↗</span>
       </a>
     );
   const kind = kindOf(target.path);
-  if (kind === "video") return <VideoTile path={target.path} style={style} media={media} onPlay={onPlay} />;
+  if (kind === "video") return <VideoTile path={target.path} style={style} big={b.width * z >= 96} root={root} media={media} onPlay={onPlay} />;
   if (kind === "image")
     return (
       // eslint-disable-next-line @next/next/no-img-element -- signed URL from the gateway, not a static asset
-      <img className="sf6-tile sf6-tile-img" style={style} src={media(target.path)} alt={title(target.path)} loading="lazy" decoding="async" />
+      <img className="sf6-tile sf6-tile-img" style={style} src={media(target.path)} alt={title(target.path)} loading="lazy" decoding="async" draggable={false} />
     );
   return (
-    <a className="sf6-tile" style={style} href={routeHref(target.path)}>
+    <a className="sf6-tile" style={style} href={routeHref(target.path)} draggable={false}>
       <span>{title(target.path)}</span>
     </a>
   );
 }
 
-/** A still of the clip once the tile is on screen and big enough to show one; the clip plays in the player. */
-function VideoTile({ path, style, media, onPlay }: { path: string; style: CSSProperties; media: (p: string) => string; onPlay: (p: string) => void }) {
+/** A still of the clip once the tile is in view and big enough to show one; the clip plays in the player. */
+function VideoTile({ path, style, big, root, media, onPlay }: { path: string; style: CSSProperties; big: boolean; root: HTMLElement | null; media: (p: string) => string; onPlay: (p: string) => void }) {
   const ref = useRef<HTMLButtonElement>(null);
   const [seen, setSeen] = useState(false);
-  const big = Number(style.width) >= 96;
   useEffect(() => {
     const el = ref.current;
-    if (!el || seen || !big) return;
-    const io = new IntersectionObserver(([entry]) => entry.isIntersecting && setSeen(true), { rootMargin: "200px" });
+    if (!el || seen || !big || !root) return;
+    const io = new IntersectionObserver(([entry]) => entry.isIntersecting && setSeen(true), { root, rootMargin: "200px" });
     io.observe(el);
     return () => io.disconnect();
-  }, [seen, big]);
+  }, [seen, big, root]);
   return (
     <button type="button" ref={ref} className="sf6-tile sf6-tile-video" style={style} onClick={() => onPlay(path)} aria-label={`Lire ${title(path)}`}>
       {seen && big && <video src={`${media(path)}#t=0.1`} preload="metadata" muted playsInline tabIndex={-1} aria-hidden="true" />}
@@ -179,7 +282,7 @@ function Player({ path, media, onClose }: { path: string | null; media: (p: stri
 
 // ---- shapes
 
-function Shapes({ scene, z, resolve }: { scene: Scene; z: number; resolve: (e: ExElement) => Resolved }) {
+function Shapes({ scene, resolve }: { scene: Scene; resolve: (e: ExElement) => Resolved }) {
   const uid = useId().replace(/:/g, "");
   const { bounds } = scene;
   const patterns = new Map<string, string>();
@@ -206,7 +309,7 @@ function Shapes({ scene, z, resolve }: { scene: Scene; z: number; resolve: (e: E
     if (!to) return g;
     const href = "url" in to ? to.url : routeHref(to.path);
     return (
-      <a key={e.id} href={href} className="sf6-board-link" {...("url" in to ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+      <a key={e.id} href={href} className="sf6-board-link" draggable={false} {...("url" in to ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
         {g}
       </a>
     );
@@ -216,8 +319,8 @@ function Shapes({ scene, z, resolve }: { scene: Scene; z: number; resolve: (e: E
     <svg
       className="sf6-board-svg"
       data-dark={scene.dark || undefined}
-      width={bounds.width * z}
-      height={bounds.height * z}
+      width={bounds.width}
+      height={bounds.height}
       viewBox={`${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`}
       aria-hidden="true"
     >

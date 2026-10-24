@@ -175,6 +175,8 @@ em { font-family: var(--voice); font-size: 1.06em; color: var(--ink); }
 .blocks article:first-child { grid-column: 1 / -1; max-width: 780px; border-left: 1px solid var(--brass); border-top: 0; padding: 4px 0 4px 20px; }
 .blocks p { margin: 0; }
 .offline .ext { color: var(--brass); }
+.offline .page-link { justify-self: start; margin-top: 6px; border-color: var(--brass); color: var(--brass); }
+.offline .page-link:hover { background: color-mix(in srgb, var(--brass) 12%, transparent); }
 
 /* contact */
 .contact { list-style: none; padding: 0 !important; gap: 0 !important; max-width: 560px; }
@@ -303,11 +305,13 @@ em { font-family: var(--voice); font-size: 1.06em; color: var(--ink); }
 /* Excalidraw boards (components/sf6/Drawing.tsx): SVG shapes under HTML embeds, panned by scrolling. */
 .sf6-board { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; width: 100%; min-width: 0; }
 .sf6-board-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
-.sf6-board-bar .sf6-ghost { min-width: 34px; height: 30px; }
-.sf6-board-hint { margin-left: auto; }
-.sf6-board-port { position: relative; overflow: auto; max-height: 78vh; border: 1px solid var(--line); background: var(--slab); overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.sf6-board-bar .sf6-ghost { height: 30px; }
+.sf6-board-bar .sf6-ghost:disabled { opacity: .45; cursor: default; }
+.sf6-board-hint { margin-right: auto; }
+.sf6-board-port { position: relative; overflow: hidden; height: min(78vh, 920px); min-height: 320px; border: 1px solid var(--line); background: var(--slab); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.sf6-board-port:active { cursor: grabbing; }
 .sf6-board-port:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
-.sf6-board-canvas { position: relative; }
+.sf6-board-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .sf6-board-svg { display: block; font-family: var(--mono); }
 /* Excalidraw's own dark mode: the scene is drawn light and inverted, embeds are not. */
 .sf6-board-svg[data-dark] { filter: invert(93%) hue-rotate(180deg); }

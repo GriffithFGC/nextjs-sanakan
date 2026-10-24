@@ -490,9 +490,9 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # silence the default access log
         pass
 
-    def _log(self, status: int, key_id: str | None = None):
+    def _log(self, status: int, key_id: str | None = None, note: str = ""):
         path = urllib.parse.urlsplit(self.path).path  # never log query strings: they carry tokens
-        sys.stderr.write(f"{iso(now())} {self.client_ip()} {self.command} {path} {status} {key_id or '-'} {int((time.monotonic() - self._t0) * 1000)}ms\n")
+        sys.stderr.write(f"{iso(now())} {self.client_ip()} {self.command} {path} {status} {key_id or '-'} {int((time.monotonic() - self._t0) * 1000)}ms{note}\n")
 
     def client_ip(self) -> str:
         peer = self.client_address[0]
@@ -676,9 +676,16 @@ class Handler(BaseHTTPRequestHandler):
             if not path.lower().endswith(".pdf"):  # Chrome refuses to show a PDF under `sandbox`
                 self.send_header("Content-Security-Policy", MEDIA_CSP)
             self.end_headers()
+            sent = 0
             if self.command != "HEAD":
-                while chunk := upstream.read(CHUNK):
-                    self.wfile.write(chunk)
+                try:
+                    while chunk := upstream.read(CHUNK):
+                        self.wfile.write(chunk)
+                        sent += len(chunk)
+                except (BrokenPipeError, ConnectionResetError):
+                    # The browser let go (a video that only wanted its metadata, a page left): say so.
+                    self.close_connection = True
+                    return self._log(status, key_id, f" aborted after {sent} B")
         self._log(status, key_id)
 
 

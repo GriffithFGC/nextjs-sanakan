@@ -9,7 +9,7 @@ import { ThemeToggle } from "@/components/sf6/ThemeToggle";
 // Forgejo through sf6-gateway. The page itself is static and public; the content is not.
 export const metadata: Metadata = {
   title: "sf6-learn · Léo Azzopardi",
-  description: "Carnet d'entraînement Street Fighter 6 — accès sur clé.",
+  description: "Learning Resources",
   alternates: { canonical: "/sf6-learn/" },
   robots: { index: false, follow: false },
   // Media URLs carry a signed token: never leak them through Referer.

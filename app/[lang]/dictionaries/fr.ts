@@ -167,6 +167,7 @@ const fr: Dictionary = {
           "Mon premier amour reste **Super Smash Bros. Melee**, où je jouais un Fox volontairement flashy. Aujourd'hui, mon jeu principal est **Street Fighter 6**, avec **Viper** — un personnage réputé pour son exigence d'exécution. C'est précisément ce que je recherche en abordant un personnage : une courbe d'apprentissage raide, où chaque progrès se gagne à l'entraînement.",
         ],
         link: { label: "Profil start.gg — Griffith", href: "https://www.start.gg/user/fc8a6021" },
+        page: { label: "Learning Resources · SF6", href: "/sf6-learn/" },
       },
       {
         title: "Arts martiaux",

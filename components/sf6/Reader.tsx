@@ -3,6 +3,8 @@
 import { type MouseEvent, useEffect, useState } from "react";
 import type { Gateway, Session } from "./api";
 import { type Entry, KIND_LABEL, type Vault, basename, dirname, formatSize, kindOf, routeHref, title } from "./files";
+import { Drawing } from "./Drawing";
+import { type Scene, isDrawing, parseDrawing } from "./excalidraw";
 import { type Heading, renderMarkdown } from "./markdown";
 
 export type ReaderContext = { gateway: Gateway; vault: Vault; commit: string; token: string };
@@ -191,8 +193,6 @@ function FileView({ ctx, entry, anchor }: { ctx: ReaderContext; entry: Entry; an
   const kind = kindOf(entry.path);
   // Captured once: a refreshed token must not reload a video that is playing.
   const [src] = useState(() => ctx.gateway.mediaUrl(entry.path, ctx.token));
-  const preview = kind === "excalidraw" ? ctx.vault.drawingPreview(entry.path) : null;
-  const [previewSrc] = useState(() => (preview ? ctx.gateway.mediaUrl(preview, ctx.token) : null));
   const name = title(entry.path);
 
   return (
@@ -210,7 +210,7 @@ function FileView({ ctx, entry, anchor }: { ctx: ReaderContext; entry: Entry; an
         )}
       </header>
 
-      {kind === "markdown" && <Note ctx={ctx} path={entry.path} anchor={anchor} />}
+      {(kind === "markdown" || kind === "excalidraw") && <Note ctx={ctx} path={entry.path} anchor={anchor} />}
       {kind === "image" && (
         <figure className="sf6-media">
           {/* eslint-disable-next-line @next/next/no-img-element -- signed URL from the gateway, not a static asset */}
@@ -224,15 +224,6 @@ function FileView({ ctx, entry, anchor }: { ctx: ReaderContext; entry: Entry; an
       )}
       {kind === "audio" && <audio className="sf6-audio" src={src} controls preload="metadata" />}
       {kind === "pdf" && <iframe className="sf6-pdf" src={src} title={name} />}
-      {kind === "excalidraw" &&
-        (previewSrc ? (
-          <figure className="sf6-media sf6-drawing">
-            {/* eslint-disable-next-line @next/next/no-img-element -- signed URL from the gateway */}
-            <img src={previewSrc} alt={name} decoding="async" />
-          </figure>
-        ) : (
-          <p className="note">Dessin Excalidraw sans export image. Active l&apos;export automatique SVG du plugin Excalidraw pour qu&apos;il s&apos;affiche ici.</p>
-        ))}
       {kind === "text" && <TextFile ctx={ctx} entry={entry} />}
       {kind === "other" && <p className="note">Aperçu indisponible pour ce type de fichier.</p>}
     </article>
@@ -261,7 +252,8 @@ function TextFile({ ctx, entry }: { ctx: ReaderContext; entry: Entry }) {
   return <pre className="sf6-text">{state.value}</pre>;
 }
 
-type NoteState = { html: string; headings: Heading[]; tags: string[] };
+// A note, or an Excalidraw drawing saved as a note (null when its scene cannot be read).
+type NoteState = { html: string; headings: Heading[]; tags: string[] } | { scene: Scene | null };
 
 function Note({ ctx, path, anchor }: { ctx: ReaderContext; path: string; anchor: string | null }) {
   const [state, setState] = useState<Load<NoteState>>({ status: "loading" });
@@ -271,7 +263,12 @@ function Note({ ctx, path, anchor }: { ctx: ReaderContext; path: string; anchor:
     let live = true;
     gateway.text(path, commit).then(
       // Rendered with the token of the moment and kept: re-rendering on refresh would reload media.
-      (text) => live && setState({ status: "ready", value: renderMarkdown(text, { from: path, vault, media: (p) => gateway.mediaUrl(p, token), title: title(path) }) }),
+      (text) =>
+        live &&
+        setState({
+          status: "ready",
+          value: isDrawing(path, text) ? { scene: parseDrawing(text) } : renderMarkdown(text, { from: path, vault, media: (p) => gateway.mediaUrl(p, token), title: title(path) }),
+        }),
       (e: Error) => live && setState({ status: "error", message: e.message }),
     );
     return () => {
@@ -292,6 +289,10 @@ function Note({ ctx, path, anchor }: { ctx: ReaderContext; path: string; anchor:
 
   if (state.status === "loading") return <p className="sf6-loading">Lecture de la note</p>;
   if (state.status === "error") return <p className="sf6-error">{state.message}</p>;
+  if ("scene" in state.value) {
+    if (state.value.scene) return <Drawing ctx={ctx} path={path} scene={state.value.scene} />;
+    return <p className="note">Ce dessin Excalidraw n&apos;a pas pu être lu : ouvre l&apos;original.</p>;
+  }
   const { html, headings, tags } = state.value;
   const toc = headings.filter((h) => h.level <= 3);
 

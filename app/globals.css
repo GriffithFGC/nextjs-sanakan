@@ -300,7 +300,30 @@ em { font-family: var(--voice); font-size: 1.06em; color: var(--ink); }
 .sf6-media { margin: 0; border: 1px solid var(--line); background: #070908; }
 .sf6-media img, .sf6-media video { display: block; max-width: 100%; max-height: 80vh; margin: 0 auto; }
 .sf6-media video { width: 100%; aspect-ratio: auto 16 / 9; }
-.sf6-drawing { background: var(--ink); }
+/* Excalidraw boards (components/sf6/Drawing.tsx): SVG shapes under HTML embeds, panned by scrolling. */
+.sf6-board { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; width: 100%; min-width: 0; }
+.sf6-board-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.sf6-board-bar .sf6-ghost { min-width: 34px; height: 30px; }
+.sf6-board-hint { margin-left: auto; }
+.sf6-board-port { position: relative; overflow: auto; max-height: 78vh; border: 1px solid var(--line); background: var(--slab); overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.sf6-board-port:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.sf6-board-canvas { position: relative; }
+.sf6-board-svg { display: block; font-family: var(--mono); }
+/* Excalidraw's own dark mode: the scene is drawn light and inverted, embeds are not. */
+.sf6-board-svg[data-dark] { filter: invert(93%) hue-rotate(180deg); }
+.sf6-board-link text { text-decoration: underline; }
+.sf6-tile { position: absolute; display: grid; place-items: center; overflow: hidden; padding: 0; border: 1px solid var(--line); background: #070908; color: var(--ink); font-family: var(--mono); text-decoration: none; text-align: center; cursor: pointer; transform-origin: center; }
+.sf6-tile > span { padding: 4px; overflow-wrap: anywhere; }
+.sf6-tile:hover, .sf6-tile:focus-visible { border-color: var(--brass); outline: none; }
+.sf6-tile-img { object-fit: contain; cursor: default; }
+.sf6-tile-missing { border-style: dashed; cursor: default; background: transparent; }
+.sf6-tile-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.sf6-tile-play { position: relative; display: grid; place-items: center; width: min(2.6em, 70%); aspect-ratio: 1; border-radius: 50%; background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--brass); font-size: 1.2em; }
+.sf6-player { width: min(1100px, calc(100vw - 2 * var(--gutter))); max-width: none; margin: auto; padding: 0; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.sf6-player::backdrop { background: color-mix(in srgb, var(--bg) 85%, transparent); }
+.sf6-player-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 8px 8px 14px; font-family: var(--mono); font-size: 12px; color: var(--dim); }
+.sf6-player-bar .sf6-ghost { height: 30px; }
+.sf6-player video { display: block; width: 100%; max-height: calc(100vh - 120px); background: #000; }
 .sf6-audio { width: 100%; }
 .sf6-pdf { width: 100%; height: 80vh; border: 1px solid var(--line); background: var(--slab); }
 .sf6-text { margin: 0; padding: 16px 18px; overflow: auto; max-height: 80vh; background: var(--slab); border: 1px solid var(--line); font-family: var(--mono); font-size: 12.5px; line-height: 1.6; color: var(--ink); }

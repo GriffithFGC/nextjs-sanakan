@@ -11,6 +11,9 @@ Forgejo and does three things for the page:
   * streams media with HTTP Range support, so videos seek, and signs short-lived media
     URLs because <img> and <video> cannot send an Authorization header.
 
+It also hands out, without a key, the colours of my desktop theme (43pr), so the page can
+dress itself like the rest of my machine.
+
 Standard library only (Python 3.11+): copy the file, set a few variables, run it.
 
     python3 sf6_gateway.py check                 # can we read the repository?
@@ -31,6 +34,7 @@ Configuration (environment):
   SF6_EXCLUDE          extra comma-separated names to hide (dot-files are always hidden)
   SF6_MEDIA_TTL        lifetime of signed media URLs, in seconds (default: 21600)
   SF6_TRUSTED_PROXIES  peers whose X-Forwarded-For is believed (default: 127.0.0.1,::1)
+  SF6_THEME_FILE       JSON palette written by 43pr, served at /v1/theme (default: none)
 """
 
 from __future__ import annotations
@@ -42,6 +46,7 @@ import hmac
 import json
 import mimetypes
 import os
+import re
 import secrets
 import sys
 import threading
@@ -57,6 +62,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 VERSION = "1.0.0"
 KEY_PREFIX = "sf6_"
 CHUNK = 64 * 1024
+# The palette keys the page uses, and the only shape a colour may take.
+THEME_KEYS = ("bg", "bg_card", "border", "fg", "fg_dim", "fg_muted", "accent", "highlight", "danger", "selection_bg", "selection_fg")
+HEX = re.compile(r"#[0-9a-fA-F]{6}")
 
 # Types the standard table misses or gets wrong for a notes-and-media repository.
 EXTRA_TYPES = {
@@ -123,6 +131,7 @@ class Config:
     exclude: frozenset[str]
     media_ttl: int
     trusted_proxies: frozenset[str]
+    theme_file: str | None = None
 
     @property
     def keys_file(self) -> str:
@@ -156,7 +165,22 @@ class Config:
             exclude=split(env.get("SF6_EXCLUDE", "")),
             media_ttl=int(env.get("SF6_MEDIA_TTL", "21600")),
             trusted_proxies=split(env.get("SF6_TRUSTED_PROXIES", "127.0.0.1,::1")),
+            theme_file=env.get("SF6_THEME_FILE") or None,
         )
+
+
+def read_theme(path: str) -> dict | None:
+    """The palette 43pr last wrote, cut down to the known keys and plain #rrggbb colours."""
+    try:
+        with open(path, "rb") as f:
+            raw = json.loads(f.read(16 * 1024))
+            updated = os.fstat(f.fileno()).st_mtime
+    except (OSError, ValueError):
+        return None
+    if not isinstance(raw, dict):
+        return None
+    colors = {k: v.lower() for k in THEME_KEYS if isinstance(v := raw.get(k), str) and HEX.fullmatch(v)}
+    return {"colors": colors, "updated": iso(updated)} if colors else None
 
 
 def write_private(path: str, data: bytes) -> None:
@@ -548,6 +572,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if url.path == "/v1/health":
                 return self.send_json(200, {"ok": True, "version": VERSION})
+            if url.path == "/v1/theme":
+                return self.theme()
             if url.path == "/v1/session":
                 return self.session()
             if url.path == "/v1/index":
@@ -565,6 +591,12 @@ class Handler(BaseHTTPRequestHandler):
                 self.error(502, "upstream", "Forgejo ne répond pas.")
         except (BrokenPipeError, ConnectionResetError):
             self.close_connection = True
+
+    def theme(self):
+        body = read_theme(self.app.cfg.theme_file) if self.app.cfg.theme_file else None
+        if not body:
+            return self.error(404, "no_theme", "Aucun thème publié.")
+        self.send_json(200, body)
 
     def session(self):
         rec = self.bearer()

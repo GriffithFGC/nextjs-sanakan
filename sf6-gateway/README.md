@@ -19,6 +19,7 @@ navigateur ──HTTPS──▶ tailscale serve/funnel ──▶ sf6-gateway (12
 | Route | Auth | Rôle |
 |---|---|---|
 | `GET /v1/health` | — | état |
+| `GET /v1/theme` | — | couleurs actuelles de 43pr (bouton « 43PR » de la page) |
 | `GET /v1/session` | `Authorization: Bearer sf6_…` | valide la clé, infos du dépôt, jeton média |
 | `GET /v1/index` | Bearer | arborescence complète du commit publié |
 | `GET /v1/files/<chemin>` | Bearer **ou** `?t=<jeton média>` | contenu du fichier, `Range` supporté |
@@ -61,6 +62,17 @@ Funnel doit être autorisé pour la machine dans la politique du tailnet (attrib
 - GitHub Pages : *Settings → Secrets and variables → Actions → Variables*, crée `SF6_GATEWAY_URL` (le workflow la passe en `NEXT_PUBLIC_SF6_GATEWAY`).
 - Vercel : *Project → Settings → Environment Variables*, ajoute `NEXT_PUBLIC_SF6_GATEWAY` avec la même valeur.
 - En local : `NEXT_PUBLIC_SF6_GATEWAY=https://… npm run dev`, et `http://localhost:3000` dans `SF6_ALLOWED_ORIGINS`.
+
+## Thème 43pr
+
+Le bouton « 43PR » de la page reprend les couleurs de ton bureau. 43pr écrit la palette dans `/srv/43pr/web-theme.json` (cible `[web]` de `targets.toml`), la passerelle la sert sur `/v1/theme` :
+
+```bash
+sudo install -d -o femto -m 755 /srv/43pr   # avant le prochain changement de thème
+echo 'SF6_THEME_FILE=/srv/43pr/web-theme.json' | sudo tee -a /etc/sf6-gateway.env
+```
+
+Seules les clés connues, en `#rrggbb`, sortent du fichier. Si la passerelle est éteinte, la page garde la dernière palette reçue.
 
 ## Gérer les clés
 

@@ -116,6 +116,7 @@ class GatewayTest(unittest.TestCase):
             exclude=frozenset({"private"}),
             media_ttl=3600,
             trusted_proxies=frozenset({"127.0.0.1"}),
+            theme_file=os.path.join(cls.tmp, "web-theme.json"),
         )
         cls.app = gw.App(cls.cfg)
         cls.srv = gw.make_server(cls.app)
@@ -251,6 +252,19 @@ class GatewayTest(unittest.TestCase):
         self.assertIn("Authorization", headers["Access-Control-Allow-Headers"])
         _, headers, _ = self.get("/v1/health", headers={"Origin": "https://evil.example"})
         self.assertNotIn("Access-Control-Allow-Origin", headers)
+
+    def test_theme_is_public_and_filtered(self):
+        with open(self.cfg.theme_file, "w") as f:
+            json.dump({"bg": "#100D0D", "accent": "#dfbfbb", "fg": "red", "evil": "#000000", "danger": "#fff; x"}, f)
+        status, headers, body = self.get("/v1/theme", headers={"Origin": "https://leoazzopardi.org"})
+        self.assertEqual(status, 200, body)
+        self.assertEqual(json.loads(body)["colors"], {"bg": "#100d0d", "accent": "#dfbfbb"})
+        self.assertEqual(headers["Access-Control-Allow-Origin"], "https://leoazzopardi.org")
+        with open(self.cfg.theme_file, "w") as f:
+            f.write("not json")
+        self.assertEqual(self.get("/v1/theme")[0], 404)
+        os.remove(self.cfg.theme_file)
+        self.assertEqual(self.get("/v1/theme")[0], 404)
 
     def test_snapshot_is_cached(self):
         self.get("/v1/index", self.key)

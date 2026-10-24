@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { MotionToggle } from "@/components/MotionToggle";
 import { Sf6Learn } from "@/components/sf6/Sf6Learn";
 
@@ -20,13 +21,13 @@ export default function Sf6LearnPage() {
         Aller au contenu
       </a>
       <header className="site-nav">
-        <a className="mark" href="/fr/">
+        <Link className="mark" href="/fr/">
           Léo Azzopardi<span>.</span>
-        </a>
+        </Link>
         <div className="tools">
-          <a className="sf6-back" href="/fr/#offline">
+          <Link className="sf6-back" href="/fr/#offline">
             <span aria-hidden="true">← </span>Portfolio
-          </a>
+          </Link>
           <MotionToggle label="Mettre les animations en pause" />
         </div>
       </header>

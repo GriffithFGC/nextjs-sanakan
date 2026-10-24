@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
 import { DescentBand } from "../descent/DescentBand";
 
@@ -67,7 +68,7 @@ export function KeyGate({ error, checking, onUnlock }: { error?: string; checkin
         </form>
 
         <p className="note">
-          Les clés sont distribuées à la main. Pas de clé ? <a href="/fr/#contact">Demande-la</a>.
+          Les clés sont distribuées à la main. Pas de clé ? <Link href="/fr/#contact">Demande-la</Link>.
         </p>
       </div>
     </section>

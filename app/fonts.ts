@@ -9,7 +9,9 @@ export const display = Marcellus({ weight: "400", subsets: ["latin"], variable: 
 export const body = Instrument_Sans({ subsets: ["latin"], variable: "--font-body" });
 // The personal voice: quotes and intimate passages, italic only.
 export const voice = Spectral({ weight: ["300", "400"], style: "italic", subsets: ["latin"], variable: "--font-voice" });
-// Strata labels, tags, data.
-export const mono = JetBrains_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-mono" });
+// Strata labels, tags, data. Variable: one file covers every weight, bold included.
+export const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+// /sf6-learn is set entirely in the mono, like my desktop; its italics only load there.
+export const monoItalic = JetBrains_Mono({ style: "italic", subsets: ["latin"], variable: "--font-mono-italic", preload: false });
 
 export const fontVariables = [display.variable, body.variable, voice.variable, mono.variable].join(" ");

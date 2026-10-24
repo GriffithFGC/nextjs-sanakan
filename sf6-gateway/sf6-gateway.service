@@ -1,0 +1,34 @@
+[Unit]
+Description=sf6-gateway — read-only, key-protected access to the sf6-learn repository
+After=network-online.target forgejo.service
+Wants=network-online.target
+
+[Service]
+User=sf6
+Group=sf6
+EnvironmentFile=/etc/sf6-gateway.env
+Environment=SF6_DATA_DIR=/var/lib/sf6-gateway
+StateDirectory=sf6-gateway
+StateDirectoryMode=0700
+ExecStart=/usr/bin/python3 /opt/sf6-gateway/sf6_gateway.py serve
+Restart=on-failure
+RestartSec=3
+
+# It only needs to read its state directory and talk to Forgejo on localhost/tailnet.
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

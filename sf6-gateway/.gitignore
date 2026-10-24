@@ -1,0 +1,3 @@
+# keys.json and the signing secret: never commit
+data/
+__pycache__/

@@ -26,6 +26,9 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+        env:
+          # Public address of sf6-gateway (repository variable, not a secret): see sf6-gateway/README.md
+          NEXT_PUBLIC_SF6_GATEWAY: ${{ vars.SF6_GATEWAY_URL }}
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

@@ -252,6 +252,21 @@ function TextFile({ ctx, entry }: { ctx: ReaderContext; entry: Entry }) {
   return <pre className="sf6-text">{state.value}</pre>;
 }
 
+// The copy button of a code block (drill codes run to tens of thousands of characters on one line).
+function copyCode(e: MouseEvent) {
+  const button = (e.target as HTMLElement).closest<HTMLButtonElement>("button.copy");
+  const code = button?.parentElement?.querySelector("code");
+  if (!button || !code) return;
+  const say = (word: string) => {
+    button.textContent = word;
+    window.setTimeout(() => (button.textContent = "Copier"), 1600);
+  };
+  navigator.clipboard.writeText(code.textContent ?? "").then(
+    () => say("Copié"),
+    () => say("Échec"),
+  );
+}
+
 // A note, or an Excalidraw drawing saved as a note (null when its scene cannot be read).
 type NoteState = { html: string; headings: Heading[]; tags: string[] } | { scene: Scene | null };
 
@@ -340,7 +355,7 @@ function Note({ ctx, path, anchor }: { ctx: ReaderContext; path: string; anchor:
         </details>
       )}
       {/* Safe by construction: renderMarkdown escapes all text and emits only its own tags. */}
-      <div className="sf6-prose" ref={retryMedia} dangerouslySetInnerHTML={{ __html: html }} />
+      <div className="sf6-prose" ref={retryMedia} onClick={copyCode} dangerouslySetInnerHTML={{ __html: html }} />
     </>
   );
 }

@@ -132,13 +132,14 @@ class Renderer {
 
       if ((m = FENCE.exec(line))) {
         const fence = m[1];
+        const indent = indentOf(line); // the fence's own indent comes off every line, as in CommonMark
         const close = new RegExp(`^ {0,3}${fence[0] === "`" ? "`" : "~"}{${fence.length},}[ \\t]*$`);
         const body: string[] = [];
         i++;
-        while (i < n && !close.test(lines[i])) body.push(lines[i++]);
+        while (i < n && !close.test(lines[i])) body.push(dedent(lines[i++], indent));
         i++;
         const lang = m[2] ? ` data-lang="${esc(m[2])}"` : "";
-        out += `<pre${lang}><code>${esc(body.join("\n"))}</code></pre>`;
+        out += `<div class="code"><pre${lang}><code>${esc(body.join("\n"))}</code></pre><button type="button" class="copy" aria-live="polite">Copier</button></div>`;
         continue;
       }
 
@@ -253,8 +254,25 @@ class Renderer {
     const lis = items.map((body) => {
       const task = /^\[([ xX/-])\][ \t]+/.exec(body[0]);
       if (task) body[0] = body[0].slice(task[0].length);
+      // `- [!drill]`: a callout-like marker at the head of an item reads as a label.
+      const marker = /^\[!([\w-]+)\][ \t]*/.exec(body[0]);
+      let label = "";
+      if (marker) {
+        const type = marker[1].toLowerCase();
+        label = `<span class="item-label" data-callout="${esc(type)}">${esc(CALLOUT_TITLES[type] ?? type.charAt(0).toUpperCase() + type.slice(1))}</span>`;
+        body[0] = body[0].slice(marker[0].length);
+      }
+      // An item with children folds, closed, as Obsidian lets you fold it.
+      let head = 1;
+      while (head < body.length && body[head].trim() && !isBlockStart(body[head])) head++;
+      let child = head;
+      while (child < body.length && !body[child].trim()) child++;
+      if (!task && child < body.length && LIST.test(body[child])) {
+        return `<li><details class="fold"><summary>${label}${this.inline(body.slice(0, head).join("\n").trim())}</summary>${this.blocks(body.slice(head))}</details></li>`;
+      }
       let html = this.blocks(body);
       if (!loose) html = html.replace(/^<p>([\s\S]*?)<\/p>/, "$1");
+      html = label + html;
       if (!task) return `<li>${html}</li>`;
       hasTask = true;
       const done = task[1] !== " ";

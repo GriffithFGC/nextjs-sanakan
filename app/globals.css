@@ -357,10 +357,23 @@ em { font-family: var(--voice); font-size: 1.06em; color: var(--ink); }
 .sf6-prose .tasks { list-style: none; padding-left: 4px; }
 .sf6-prose .task input { vertical-align: -2px; margin-right: 6px; }
 .sf6-prose .task.done { color: var(--dim); }
+/* an item with children folds, as in Obsidian: the arrow takes the bullet's place */
+.sf6-prose li:has(> details.fold) { list-style: none; }
+.sf6-prose details.fold > summary { cursor: pointer; list-style: none; }
+.sf6-prose details.fold > summary::-webkit-details-marker { display: none; }
+.sf6-prose details.fold > summary::before { content: "▸"; display: inline-block; width: 14px; margin-left: -14px; color: var(--dim); font-size: 10px; transition: transform .15s; }
+.sf6-prose details.fold[open] > summary::before { transform: rotate(90deg); color: var(--brass); }
+.sf6-prose details.fold > ul, .sf6-prose details.fold > ol { margin: .25em 0 0; }
+.sf6-prose .item-label { margin-right: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); }
 .sf6-prose code { font-family: var(--mono); font-size: .86em; padding: 1px 6px; background: var(--slab); border: 1px solid var(--line); color: var(--ink); }
 .sf6-prose pre { position: relative; padding: 14px 16px; overflow: auto; background: var(--slab); border: 1px solid var(--line); }
 .sf6-prose pre code { padding: 0; border: 0; background: none; font-size: 12.5px; line-height: 1.6; }
-.sf6-prose pre[data-lang]::before { content: attr(data-lang); position: absolute; top: 6px; right: 10px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.sf6-prose .code { position: relative; margin: 0 0 1.1em; }
+.sf6-prose .code > pre { margin: 0; padding-right: 84px; }
+.sf6-prose .copy { position: absolute; top: 6px; right: 6px; height: 24px; padding: 0 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--line); background: var(--slab); color: var(--dim); cursor: pointer; transition: color .2s, border-color .2s; }
+.sf6-prose .copy:hover { color: var(--brass); border-color: var(--brass); }
+.sf6-prose .copy:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.sf6-prose pre[data-lang]::before { content: attr(data-lang); position: absolute; top: 6px; right: 80px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
 .sf6-prose blockquote { padding: 2px 0 2px 18px; border-left: 1px solid var(--brass); font-family: var(--voice); font-style: italic; font-size: 18px; color: var(--ink); }
 .sf6-prose mark { background: color-mix(in srgb, var(--brass) 24%, transparent); color: var(--ink); padding: 0 2px; }
 .sf6-prose del { color: var(--dim); }
